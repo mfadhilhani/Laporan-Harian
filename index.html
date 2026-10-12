@@ -238,6 +238,40 @@
         <label>Golden Rules DPS</label><input id="d_gr" value="Kami bisa, Yakin bisa, Harus bisa" /> <label>Hasil teks</label><textarea id="d_out"></textarea>
         <div class="btns"><button class="btn wa" id="d_wa">Kirim ke WhatsApp</button><button class="btn" id="d_cp">Salin teks</button></div>
       </section>
+      <section id="p-scan">
+        <h2>Scan Dokumen</h2>
+        <label>Hasil scan untuk</label
+        ><select id="sc_tg">
+          <option value="hadir">Daftar Hadir Safety Briefing</option>
+          <option value="hyg">Daily Inspection Personal Hygiene Sanitasi</option>
+        </select>
+        <div class="row">
+          <div><label>Ambil dengan kamera</label><input type="file" accept="image/*" capture="environment" id="sc_cam" /></div>
+          <div><label>Atau pilih dari galeri</label><input type="file" accept="image/*" id="sc_gal" /></div>
+        </div>
+        <div id="sc_ed" hidden>
+          <label>Geser 4 titik oranye ke sudut kertas</label>
+          <canvas id="sc_cv" style="width: 100%; touch-action: none; border: 1px solid var(--bd); border-radius: 8px"></canvas>
+          <div class="row">
+            <div>
+              <label>Mode</label
+              ><select id="sc_md">
+                <option value="doc">Dokumen (bersih)</option>
+                <option value="bw">Hitam putih</option>
+                <option value="asli">Warna asli</option>
+              </select>
+            </div>
+            <div><label>&nbsp;</label><button class="btn" id="sc_rot" type="button" style="width: 100%">Putar 90°</button></div>
+          </div>
+          <label style="display: flex; gap: 8px; align-items: center"><input type="checkbox" id="sc_auto" checked style="width: auto" /> Otomatis isi Foto 1 pada form tujuan</label>
+          <div class="btns"><button class="btn wa" id="sc_go" type="button">Proses scan</button></div>
+        </div>
+        <div id="sc_out" hidden>
+          <img id="sc_img" class="pv" alt="" />
+          <p id="sc_msg" style="color: var(--mut); font-size: 13px"></p>
+          <div class="btns"><button class="btn wa" id="sc_wa" type="button">Kirim ke WhatsApp</button><button class="btn" id="sc_dl" type="button">Unduh</button><button class="btn" id="sc_open" type="button">Buka form tujuan</button></div>
+        </div>
+      </section>
     </main>
     <script>
       const $ = (s) => document.querySelector(s),
@@ -503,6 +537,271 @@ Golden Rules DPS
         setInterval(tick, 1000);
         lab();
         tick();
+      })();
+      /* ---- Scan dokumen ---- */
+      (() => {
+        nav.insertAdjacentHTML("beforeend", '<button data-t="scan">Scan</button>');
+        const cv = $("#sc_cv"),
+          cx = cv.getContext("2d"),
+          S = document.createElement("canvas");
+        let pts = [],
+          ds = 1,
+          drag = -1,
+          res = null;
+        const TG = { hadir: "Daftar Hadir", hyg: "Inspection Personal Hygiene" };
+        const draw = () => {
+          ds = Math.min(1, 720 / S.width);
+          cv.width = S.width * ds;
+          cv.height = S.height * ds;
+          cx.drawImage(S, 0, 0, cv.width, cv.height);
+          cx.beginPath();
+          pts.forEach(([x, y], i) => cx[i ? "lineTo" : "moveTo"](x * ds, y * ds));
+          cx.closePath();
+          cx.fillStyle = "rgba(245,124,0,.22)";
+          cx.fill();
+          cx.lineWidth = 3;
+          cx.strokeStyle = "#f57c00";
+          cx.stroke();
+          pts.forEach(([x, y]) => {
+            cx.beginPath();
+            cx.arc(x * ds, y * ds, 14, 0, 7);
+            cx.fillStyle = "#f57c00";
+            cx.fill();
+            cx.strokeStyle = "#fff";
+            cx.stroke();
+          });
+        };
+        const init = () => {
+          const w = S.width,
+            h = S.height,
+            i = 0.06;
+          pts = [
+            [w * i, h * i],
+            [w * (1 - i), h * i],
+            [w * (1 - i), h * (1 - i)],
+            [w * i, h * (1 - i)],
+          ];
+          res = null;
+          $("#sc_out").hidden = true;
+          $("#sc_ed").hidden = false;
+          draw();
+        };
+        const load = async (f) => {
+          if (!f) return;
+          const b = await createImageBitmap(f),
+            m = Math.min(1, 2400 / Math.max(b.width, b.height));
+          S.width = Math.round(b.width * m);
+          S.height = Math.round(b.height * m);
+          S.getContext("2d").drawImage(b, 0, 0, S.width, S.height);
+          init();
+        };
+        $("#sc_cam").onchange = (e) => load(e.target.files[0]);
+        $("#sc_gal").onchange = (e) => load(e.target.files[0]);
+        const pos = (e) => {
+          const r = cv.getBoundingClientRect();
+          return [((e.clientX - r.left) * cv.width) / r.width / ds, ((e.clientY - r.top) * cv.height) / r.height / ds];
+        };
+        cv.onpointerdown = (e) => {
+          const [x, y] = pos(e);
+          let best = -1,
+            bd = 1e9;
+          pts.forEach((p, i) => {
+            const d = Math.hypot(p[0] - x, p[1] - y) * ds;
+            if (d < bd) {
+              bd = d;
+              best = i;
+            }
+          });
+          if (bd < (44 * cv.width) / cv.getBoundingClientRect().width) {
+            drag = best;
+            cv.setPointerCapture(e.pointerId);
+          }
+        };
+        cv.onpointermove = (e) => {
+          if (drag < 0) return;
+          const [x, y] = pos(e);
+          pts[drag] = [Math.max(0, Math.min(S.width, x)), Math.max(0, Math.min(S.height, y))];
+          draw();
+        };
+        cv.onpointerup = cv.onpointercancel = () => {
+          drag = -1;
+        };
+        $("#sc_rot").onclick = () => {
+          const t = document.createElement("canvas");
+          t.width = S.height;
+          t.height = S.width;
+          const c = t.getContext("2d");
+          c.translate(t.width, 0);
+          c.rotate(Math.PI / 2);
+          c.drawImage(S, 0, 0);
+          S.width = t.width;
+          S.height = t.height;
+          S.getContext("2d").drawImage(t, 0, 0);
+          init();
+        };
+        function homo(d, s) {
+          const A = [],
+            B = [];
+          for (let i = 0; i < 4; i++) {
+            const [x, y] = d[i],
+              [u, v] = s[i];
+            A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]);
+            B.push(u);
+            A.push([0, 0, 0, x, y, 1, -v * x, -v * y]);
+            B.push(v);
+          }
+          for (let i = 0; i < 8; i++) {
+            let m = i;
+            for (let r = i + 1; r < 8; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r;
+            [A[i], A[m]] = [A[m], A[i]];
+            [B[i], B[m]] = [B[m], B[i]];
+            for (let r = i + 1; r < 8; r++) {
+              const f = A[r][i] / A[i][i];
+              for (let c = i; c < 8; c++) A[r][c] -= f * A[i][c];
+              B[r] -= f * B[i];
+            }
+          }
+          const X = Array(8);
+          for (let i = 7; i >= 0; i--) {
+            let s = B[i];
+            for (let c = i + 1; c < 8; c++) s -= A[i][c] * X[c];
+            X[i] = s / A[i][i];
+          }
+          return X;
+        }
+        function warp(q, W, H) {
+          const sw = S.width,
+            sh = S.height,
+            sd = S.getContext("2d").getImageData(0, 0, sw, sh).data,
+            k = homo(
+              [
+                [0, 0],
+                [W, 0],
+                [W, H],
+                [0, H],
+              ],
+              q,
+            ),
+            od = new ImageData(W, H),
+            o = od.data;
+          for (let y = 0; y < H; y++)
+            for (let x = 0; x < W; x++) {
+              const w = k[6] * x + k[7] * y + 1,
+                u = (k[0] * x + k[1] * y + k[2]) / w,
+                v = (k[3] * x + k[4] * y + k[5]) / w,
+                i = (y * W + x) * 4;
+              o[i + 3] = 255;
+              if (u < 0 || v < 0 || u >= sw - 1 || v >= sh - 1) {
+                o[i] = o[i + 1] = o[i + 2] = 255;
+                continue;
+              }
+              const x0 = u | 0,
+                y0 = v | 0,
+                fx = u - x0,
+                fy = v - y0,
+                p = (y0 * sw + x0) * 4,
+                p2 = p + sw * 4;
+              for (let c = 0; c < 3; c++) o[i + c] = (sd[p + c] * (1 - fx) + sd[p + 4 + c] * fx) * (1 - fy) + (sd[p2 + c] * (1 - fx) + sd[p2 + 4 + c] * fx) * fy;
+            }
+          return od;
+        }
+        function enh(od, mode) {
+          if (mode == "asli") return;
+          const D = od.data,
+            W = od.width,
+            H = od.height,
+            g = new Uint8Array(W * H);
+          for (let i = 0; i < W * H; i++) g[i] = 0.299 * D[i * 4] + 0.587 * D[i * 4 + 1] + 0.114 * D[i * 4 + 2];
+          const I = new Uint32Array((W + 1) * (H + 1));
+          for (let y = 0; y < H; y++) {
+            let r = 0;
+            for (let x = 0; x < W; x++) {
+              r += g[y * W + x];
+              I[(y + 1) * (W + 1) + x + 1] = I[y * (W + 1) + x + 1] + r;
+            }
+          }
+          const k = Math.max(8, W >> 4);
+          for (let y = 0; y < H; y++) {
+            const y0 = Math.max(0, y - k),
+              y1 = Math.min(H, y + k + 1);
+            for (let x = 0; x < W; x++) {
+              const x0 = Math.max(0, x - k),
+                x1 = Math.min(W, x + k + 1),
+                m = (I[y1 * (W + 1) + x1] - I[y0 * (W + 1) + x1] - I[y1 * (W + 1) + x0] + I[y0 * (W + 1) + x0]) / ((x1 - x0) * (y1 - y0)),
+                v = g[y * W + x];
+              const o = mode == "bw" ? (v < m * 0.88 ? 0 : 255) : 255 * Math.pow(Math.min(1, (v / (m + 1)) * 1.03), 1.8),
+                i = (y * W + x) * 4;
+              D[i] = D[i + 1] = D[i + 2] = o;
+            }
+          }
+        }
+        const toSlot = (id, blob) => {
+          const inp = $("#p-" + id + " input[type=file]"),
+            dt = new DataTransfer();
+          dt.items.add(new File([blob], "scan-" + Date.now() + ".jpg", { type: "image/jpeg" }));
+          inp.files = dt.files;
+          inp.dispatchEvent(new Event("change", { bubbles: true }));
+        };
+        $("#sc_go").onclick = async (e) => {
+          const b = e.target;
+          b.textContent = "Memproses...";
+          b.disabled = true;
+          await new Promise((r) => setTimeout(r, 40));
+          try {
+            const d = (a, c) => Math.hypot(a[0] - c[0], a[1] - c[1]);
+            let W = Math.max(d(pts[0], pts[1]), d(pts[3], pts[2])),
+              H = Math.max(d(pts[0], pts[3]), d(pts[1], pts[2])),
+              m = Math.min(1, 1600 / Math.max(W, H));
+            W = Math.round(W * m);
+            H = Math.round(H * m);
+            const od = warp(pts, W, H);
+            enh(od, $("#sc_md").value);
+            const oc = document.createElement("canvas");
+            oc.width = W;
+            oc.height = H;
+            oc.getContext("2d").putImageData(od, 0, 0);
+            res = await new Promise((r) => oc.toBlob(r, "image/jpeg", 0.92));
+            $("#sc_img").src = URL.createObjectURL(res);
+            $("#sc_out").hidden = false;
+            const tg = $("#sc_tg").value;
+            let msg = "Hasil scan siap.";
+            if ($("#sc_auto").checked) {
+              toSlot(tg, res);
+              msg = "\u2713 Foto 1 pada form " + TG[tg] + " sudah terisi otomatis.";
+            }
+            $("#sc_msg").textContent = msg;
+          } catch (err) {
+            alert("Scan gagal: " + err.message);
+          }
+          b.textContent = "Proses scan";
+          b.disabled = false;
+        };
+        const dl = () => {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(res);
+          a.download = "scan-" + $("#sc_tg").value + "-" + Date.now() + ".jpg";
+          a.click();
+        };
+        $("#sc_dl").onclick = () => res && dl();
+        $("#sc_open").onclick = () => show($("#sc_tg").value);
+        $("#sc_wa").onclick = async () => {
+          if (!res) return;
+          const tg = $("#sc_tg").value,
+            text = $("#p-" + tg + " textarea").value,
+            file = new File([res], "scan-" + tg + ".jpg", { type: "image/jpeg" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({ files: [file], text });
+            } catch (_) {}
+          } else {
+            dl();
+            try {
+              await navigator.clipboard.writeText(text);
+            } catch (_) {}
+            alert("Gambar diunduh dan keterangan disalin. Buka WhatsApp, lampirkan gambar, lalu tempel keterangan.");
+            window.open("https://wa.me/?text=" + encodeURIComponent(text));
+          }
+        };
       })();
       /* ---- Tabs ---- */
       function show(id) {
