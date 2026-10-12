@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Laporan Harian</title>
+    <style>
+      :root {
+        --bg: #f3f5f9;
+        --card: #fff;
+        --tx: #14213d;
+        --mut: #5b6678;
+        --bd: #d5dbe6;
+        --navy: #0b2545;
+        --or: #f57c00;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0a1220;
+          --card: #121c30;
+          --tx: #e8edf6;
+          --mut: #9aa7bd;
+          --bd: #26344f;
+          --navy: #16335f;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #0a1220;
+        --card: #121c30;
+        --tx: #e8edf6;
+        --mut: #9aa7bd;
+        --bd: #26344f;
+        --navy: #16335f;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--tx);
+        font:
+          15px/1.45 system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+      }
+      header {
+        background: var(--navy);
+        color: #fff;
+        padding: 14px 16px;
+        border-bottom: 4px solid var(--or);
+      }
+      header h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+      header p {
+        margin: 2px 0 0;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+      nav {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 10px 12px;
+        background: var(--bg);
+        position: sticky;
+        top: env(safe-area-inset-top, 0px);
+        z-index: 2;
+      }
+      nav button {
+        flex: none;
+        border: 1px solid var(--bd);
+        background: var(--card);
+        color: var(--tx);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font: inherit;
+        cursor: pointer;
+      }
+      nav button.on {
+        background: var(--or);
+        border-color: var(--or);
+        color: #fff;
+        font-weight: 600;
+      }
+      main {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 0 12px 40px;
+      }
+      section {
+        display: none;
+        background: var(--card);
+        border: 1px solid var(--bd);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      section.on {
+        display: block;
+      }
+      h2 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: var(--or);
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--mut);
+        margin: 10px 0 3px;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        font: inherit;
+        color: var(--tx);
+        background: var(--bg);
+        border: 1px solid var(--bd);
+        border-radius: 8px;
+        padding: 9px;
+      }
+      textarea {
+        min-height: 150px;
+        resize: vertical;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+      }
+      .row > * {
+        flex: 1;
+      }
+      .r {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+      .r input {
+        flex: 1;
+      }
+      .x {
+        width: 38px;
+        border: 1px solid var(--bd);
+        background: var(--bg);
+        color: var(--tx);
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .add {
+        border: 1px dashed var(--or);
+        background: none;
+        color: var(--or);
+        border-radius: 8px;
+        padding: 7px 12px;
+        font: inherit;
+        cursor: pointer;
+      }
+      .btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--navy);
+        color: #fff;
+      }
+      .btn.wa {
+        background: #1fa855;
+      }
+      .btns {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .pv {
+        max-width: 100%;
+        border-radius: 8px;
+        margin-top: 10px;
+        border: 1px solid var(--bd);
+      }
+      .num {
+        counter-reset: n;
+      }
+      .num .r {
+        counter-increment: n;
+      }
+      .num .r::before {
+        content: counter(n) ".";
+        align-self: center;
+        width: 18px;
+        color: var(--mut);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Laporan Harian BCP</h1>
+      <p>Safety Briefing · Hygiene · Packmeal</p>
+    </header>
+    <nav id="nav"></nav>
+    <main>
+      <section id="p-dsb">
+        <h2>Daily Safety Briefing DPS</h2>
+        <div class="row">
+          <div><label>Tanggal</label><input type="date" id="d_date" /></div>
+          <div><label>Hari</label><input id="d_hari" readonly /></div>
+        </div>
+        <div class="row">
+          <div><label>Lokasi</label><input id="d_lok" value="BCP" /></div>
+          <div><label>Fasilitator</label><input id="d_fas" value="SPV &amp; HSE" /></div>
+        </div>
+        <label>Tim Safety</label><input id="d_tim" value="Muhammad Fadhil Hani" /> <label>Materi Pembahasan</label>
+        <div class="num" data-n="materi"></div>
+        <button class="add" data-a="materi">+ Tambah poin</button>
+        <div class="row">
+          <div><label>Review kerja</label><input id="d_rev" value="Aman" /></div>
+          <div><label>Alasan untuk</label><input id="d_dept" value="All Dept" /></div>
+        </div>
+        <label>Poin alasan</label>
+        <div data-n="alasan"></div>
+        <button class="add" data-a="alasan">+ Tambah poin</button> <label>Plan kerja hari ini</label><input id="d_plan" value="Continue kegiatan operasional All Dept &amp; closing temuan inspeksi internal" />
+        <div class="row">
+          <div><label>Jumlah peserta (orang)</label><input type="number" min="0" id="d_jml" placeholder="isi jumlah" /></div>
+        </div>
+        <label>Golden Rules DPS</label><input id="d_gr" value="Kami bisa, Yakin bisa, Harus bisa" /> <label>Hasil teks</label><textarea id="d_out"></textarea>
+        <div class="btns"><button class="btn wa" id="d_wa">Kirim ke WhatsApp</button><button class="btn" id="d_cp">Salin teks</button></div>
+      </section>
+    </main>
+    <script>
+      const $ = (s) => document.querySelector(s),
+        $$ = (s) => [...document.querySelectorAll(s)];
+      const HR = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum’at", "Sabtu"],
+        BL = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const pad = (n) => String(n).padStart(2, "0");
+      const today = () => {
+        const d = new Date();
+        return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+      };
+      const nowHM = () => {
+        const d = new Date();
+        return pad(d.getHours()) + ":" + pad(d.getMinutes());
+      };
+      const pd = (s) => {
+        const [y, m, d] = (s || today()).split("-").map(Number);
+        return new Date(y, m - 1, d);
+      };
+      const hari = (s) => HR[pd(s).getDay()],
+        lng = (s) => {
+          const d = pd(s);
+          return d.getDate() + " " + BL[d.getMonth()] + " " + d.getFullYear();
+        };
+      const dmy = (s) => {
+        const [y, m, d] = (s || today()).split("-");
+        return d + "/" + m + "/" + y.slice(2);
+      };
+      const esc = (s) => s.replace(/"/g, "&quot;");
+      const row = (v) => `<div class="r"><input value="${esc(v)}"><button class="x" type="button">×</button></div>`;
+      const DEF = {
+        materi: ["Pembacaan Golden Rules", "Review Planning kerja", "Kegiatan Pembersihan area Camp", "Penerapan 5R"],
+        alasan: ["Wajib memakai APD", "Mengisi Checklist kebersihan", "Memastikan area room bersih, wangi", "Melakukan Double Check", "Komunikasi 2 arah"],
+      };
+      for (const k in DEF) $(`[data-n=${k}]`).innerHTML = DEF[k].map(row).join("");
+      $("#d_date").value = today();
+
+      /* ---- Daily Safety Briefing text ---- */
+      const g = (n) =>
+        $$(`[data-n=${n}] input`)
+          .map((i) => i.value.trim())
+          .filter(Boolean);
+      function gen() {
+        const d = $("#d_date").value || today(),
+          v = (id) => $("#" + id).value.trim();
+        $("#d_hari").value = hari(d);
+        $("#d_out").value = `Daily Safety Briefing DPS
+Hari : ${hari(d)}
+Tanggal : ${lng(d)}
+Lokasi : ${v("d_lok")}
+Fasilitator : ${v("d_fas")}
+Tim Safety : ${v("d_tim")}
+
+Materi Pembahasan
+${g("materi")
+  .map((t, i) => i + 1 + ". " + t)
+  .join("\n")}
+
+Review kerja : ${v("d_rev")}
+Alasan :
+${v("d_dept")}
+${g("alasan")
+  .map((t) => "* " + t)
+  .join("\n")}
+
+Plan kerja hari ini : ${v("d_plan")}
+
+Jumlah peserta : ${v("d_jml") || ".."} orang
+
+Golden Rules DPS
+"${v("d_gr")}"`;
+      }
+      document.addEventListener("click", (e) => {
+        const t = e.target;
+        if (t.classList.contains("x")) {
+          t.parentElement.remove();
+          gen();
+        }
+        if (t.dataset.a) {
+          $(`[data-n=${t.dataset.a}]`).insertAdjacentHTML("beforeend", row(""));
+          gen();
+          $$(`[data-n=${t.dataset.a}] input`).pop().focus();
+        }
+      });
+      $("#p-dsb").addEventListener("input", gen);
+      $("#d_cp").onclick = async () => {
+        try {
+          await navigator.clipboard.writeText($("#d_out").value);
+          alert("Teks disalin");
+        } catch (e) {
+          $("#d_out").select();
+          document.execCommand("copy");
+        }
+      };
+      $("#d_wa").onclick = () => {
+        const t = $("#d_out").value;
+        if (navigator.share) navigator.share({ text: t }).catch(() => {});
+        else window.open("https://wa.me/?text=" + encodeURIComponent(t));
+      };
+      gen();
+
+      /* ---- Photo forms ---- */
+      const FD = { date: ["Tanggal", "date", today], site: ["Site", "text", () => "BCP"], shift: ["Shift", "select", ["Pagi", "Malam"]], time: ["Pukul", "time", nowHM] };
+      const FORMS = [
+        { id: "hadir", nav: "Daftar Hadir", t: "Daftar Hadir Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Daftar Hadir Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
+        { id: "dok", nav: "Dokumentasi", t: "Dokumentasi Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Dokumentasi Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
+        { id: "hyg", nav: "Hygiene", t: "Daily Inspection Personal Hygiene Sanitasi", n: 2, f: ["date", "site"], cap: (v) => `Daily Inspection Personal Hygiene Sanitasi tgl ${dmy(v.date)} site ${v.site}` },
+        { id: "pack", nav: "Packmeal", t: "Pengantaran Packmeal", n: 1, f: ["date", "time"], cap: (v) => `Pengantaran Packmeal ${hari(v.date)}, ${lng(v.date)} Pukul ${v.time.replace(":", ".")} WITA` },
+      ];
+      const slot = (i) => `<label>Foto ${i}${i == 1 ? "" : " (disusun setelah foto sebelumnya)"}</label><input type="file" accept="image/*">`;
+      const nav = $("#nav"),
+        main = $("main");
+      nav.innerHTML = '<button data-t="dsb">Safety Briefing</button>' + FORMS.map((f) => `<button data-t="${f.id}">${f.nav}</button>`).join("");
+      FORMS.forEach((f) => {
+        const fields = f.f
+          .map((k) => {
+            const [l, ty, d] = FD[k];
+            return `<div><label>${l}</label>` + (ty == "select" ? `<select data-k="${k}">${d.map((o) => `<option>${o}</option>`).join("")}</select>` : `<input type="${ty}" data-k="${k}" value="${d()}">`) + "</div>";
+          })
+          .join("");
+        main.insertAdjacentHTML(
+          "beforeend",
+          `<section id="p-${f.id}" data-id="${f.id}"><h2>${f.t}</h2><div class="row">${fields}</div>
+<div class="slots">${Array.from({ length: f.n }, (_, i) => slot(i + 1)).join("")}</div>
+<button class="add" data-s="${f.id}" type="button" style="margin-top:10px">+ Foto</button>
+<label>Susunan foto (jika lebih dari satu)</label><select class="lay"><option value="v">Atas – bawah (seperti contoh)</option><option value="h">Berjajar</option></select>
+<img class="pv" alt="" hidden><label>Keterangan gambar</label><textarea style="min-height:70px"></textarea>
+<div class="btns"><button class="btn wa" data-send="${f.id}">Kirim ke WhatsApp</button><button class="btn" data-dl="${f.id}">Unduh gambar</button></div></section>`,
+        );
+      });
+      const cap = (p) => {
+        const f = FORMS.find((x) => x.id == p.dataset.id),
+          v = {};
+        $$(`#${p.id} [data-k]`).forEach((e) => (v[e.dataset.k] = e.value.trim() || (e.dataset.k == "site" ? "BCP" : "")));
+        p.querySelector("textarea").value = f.cap(v);
+      };
+      async function build(p) {
+        const fs = $$(`#${p.id} input[type=file]`)
+          .map((i) => i.files[0])
+          .filter(Boolean);
+        if (!fs.length) return null;
+        const im = await Promise.all(fs.map((f) => createImageBitmap(f))),
+          h = p.querySelector(".lay").value == "h",
+          G = 8;
+        let W,
+          Ht,
+          pos = [];
+        if (!h) {
+          W = 1080;
+          const hs = im.map((i) => Math.round((i.height * W) / i.width));
+          let y = 0;
+          hs.forEach((x) => {
+            pos.push([0, y, W, x]);
+            y += x + G;
+          });
+          Ht = y - G;
+        } else {
+          Ht = 1080;
+          const ws = im.map((i) => Math.round((i.width * Ht) / i.height));
+          let x = 0;
+          ws.forEach((w) => {
+            pos.push([x, 0, w, Ht]);
+            x += w + G;
+          });
+          W = x - G;
+        }
+        const c = document.createElement("canvas");
+        c.width = W;
+        c.height = Ht;
+        const x = c.getContext("2d");
+        x.fillStyle = "#fff";
+        x.fillRect(0, 0, W, Ht);
+        im.forEach((i, k) => x.drawImage(i, ...pos[k]));
+        return new Promise((r) => c.toBlob(r, "image/jpeg", 0.9));
+      }
+      async function preview(p) {
+        const b = await build(p),
+          im = p.querySelector(".pv");
+        if (b) {
+          im.src = URL.createObjectURL(b);
+          im.hidden = false;
+        } else im.hidden = true;
+      }
+      FORMS.forEach((f) => {
+        const p = $("#p-" + f.id);
+        cap(p);
+        p.addEventListener("input", (e) => {
+          if (e.target.dataset.k) cap(p);
+        });
+        p.addEventListener("change", (e) => {
+          if (e.target.type == "file" || e.target.classList.contains("lay")) preview(p);
+        });
+      });
+      document.addEventListener("click", async (e) => {
+        const t = e.target;
+        if (t.dataset.s) {
+          const sl = $(`#p-${t.dataset.s} .slots`);
+          sl.insertAdjacentHTML("beforeend", slot(sl.querySelectorAll("input").length + 1));
+        }
+        if (t.dataset.send || t.dataset.dl) {
+          const p = $("#p-" + (t.dataset.send || t.dataset.dl)),
+            b = await build(p),
+            text = p.querySelector("textarea").value;
+          if (!b) return alert("Pilih foto dulu");
+          const file = new File([b], p.dataset.id + "-" + Date.now() + ".jpg", { type: "image/jpeg" });
+          const save = () => {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(b);
+            a.download = file.name;
+            a.click();
+          };
+          if (t.dataset.dl) return save();
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({ files: [file], text });
+            } catch (_) {}
+          } else {
+            save();
+            try {
+              await navigator.clipboard.writeText(text);
+            } catch (_) {}
+            alert("Gambar diunduh dan keterangan disalin. Buka WhatsApp, lampirkan gambar, lalu tempel keterangan.");
+            window.open("https://wa.me/?text=" + encodeURIComponent(text));
+          }
+        }
+      });
+      /* ---- Tabs ---- */
+      function show(id) {
+        $$("section").forEach((s) => s.classList.toggle("on", s.id == "p-" + id));
+        $$("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.t == id));
+      }
+      nav.onclick = (e) => {
+        if (e.target.dataset.t) show(e.target.dataset.t);
+      };
+      show("dsb");
+    </script>
+  </body>
+</html>
