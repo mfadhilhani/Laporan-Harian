@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Laporan Harian</title>
+    <title>Laporan Harian BCP</title>
     <style>
       :root {
         --bg: #f3f5f9;
@@ -342,9 +342,9 @@ Golden Rules DPS
       /* ---- Photo forms ---- */
       const FD = { date: ["Tanggal", "date", today], site: ["Site", "text", () => "BCP"], shift: ["Shift", "select", ["Pagi", "Malam"]], time: ["Pukul", "time", nowHM] };
       const FORMS = [
-        { id: "hadir", nav: "Daftar Hadir", t: "Daftar Hadir Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Daftar Hadir Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
-        { id: "dok", nav: "Dokumentasi", t: "Dokumentasi Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Dokumentasi Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
-        { id: "hyg", nav: "Hygiene", t: "Daily Inspection Personal Hygiene Sanitasi", n: 2, f: ["date", "site"], cap: (v) => `Daily Inspection Personal Hygiene Sanitasi tgl ${dmy(v.date)} site ${v.site}` },
+        { id: "hadir", nav: "Daftar Hadir", t: "Daftar Hadir Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Daftar Hadir Safety Briefing tanggal ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
+        { id: "dok", nav: "Dokumentasi", t: "Dokumentasi Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Dokumentasi Safety Briefing tanggal ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
+        { id: "hyg", nav: "Hygiene", t: "Daily Inspection Personal Hygiene Sanitasi", n: 2, f: ["date", "site"], cap: (v) => `Daily Inspection Personal Hygiene Sanitasi tanggal ${dmy(v.date)} site ${v.site}` },
         { id: "pack", nav: "Packmeal", t: "Pengantaran Packmeal", n: 1, f: ["date", "time"], cap: (v) => `Pengantaran Packmeal ${hari(v.date)}, ${lng(v.date)} Pukul ${v.time.replace(":", ".")} WITA` },
       ];
       const slot = (i) => `<label>Foto ${i}${i == 1 ? "" : " (disusun setelah foto sebelumnya)"}</label><input type="file" accept="image/*">`;
@@ -464,6 +464,46 @@ Golden Rules DPS
           }
         }
       });
+      /* ---- Packmeal: jam realtime, tetap bisa diubah manual ---- */
+      (() => {
+        const p = $("#p-pack"),
+          ti = p.querySelector("[data-k=time]"),
+          ta = p.querySelector("textarea");
+        let live = true;
+        const st = document.createElement("button");
+        st.type = "button";
+        st.className = "add";
+        st.style.marginTop = "8px";
+        ti.parentElement.appendChild(st);
+        const lab = () => {
+          st.textContent = live ? "● Realtime (ikut jam perangkat)" : "↻ Kembali ke jam realtime";
+        };
+        const tick = () => {
+          if (!live) return;
+          const n = nowHM();
+          if (ti.value !== n) {
+            ti.value = n;
+            cap(p);
+          }
+        };
+        ti.addEventListener("input", () => {
+          live = false;
+          lab();
+        });
+        ta.addEventListener("input", () => {
+          live = false;
+          lab();
+        });
+        st.onclick = () => {
+          live = true;
+          lab();
+          tick();
+        };
+        document.addEventListener("visibilitychange", tick);
+        setInterval(tick, 1000);
+        lab();
+        tick();
+      })();
       /* ---- Tabs ---- */
       function show(id) {
         $$("section").forEach((s) => s.classList.toggle("on", s.id == "p-" + id));
