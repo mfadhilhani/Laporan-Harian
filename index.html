@@ -83,8 +83,9 @@
         background: var(--card);
         color: var(--tx);
         border-radius: 999px;
-        padding: 8px 14px;
+        padding: 6px 12px;
         font: inherit;
+        font-size: 14px;
         cursor: pointer;
       }
       nav button.on {
@@ -376,10 +377,40 @@ Golden Rules DPS
       /* ---- Photo forms ---- */
       const FD = { date: ["Tanggal", "date", today], site: ["Site", "text", () => "BCP"], shift: ["Shift", "select", ["Pagi", "Malam"]], time: ["Pukul", "time", nowHM] };
       const FORMS = [
-        { id: "hadir", nav: "Daftar Hadir", t: "Daftar Hadir Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Daftar Hadir Safety Briefing tanggal ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
-        { id: "dok", nav: "Dokumentasi", t: "Dokumentasi Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Dokumentasi Safety Briefing tanggal ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
-        { id: "hyg", nav: "Hygiene", t: "Daily Inspection Personal Hygiene Sanitasi", n: 2, f: ["date", "site"], cap: (v) => `Daily Inspection Personal Hygiene Sanitasi tanggal ${dmy(v.date)} site ${v.site}` },
-        { id: "pack", nav: "Packmeal", t: "Pengantaran Packmeal", n: 1, f: ["date", "time"], cap: (v) => `Pengantaran Packmeal ${hari(v.date)}, ${lng(v.date)} Pukul ${v.time.replace(":", ".")} WITA` },
+        { id: "hadir", nav: "Daftar Hadir", t: "Daftar Hadir Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Daftar Hadir Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
+        { id: "dok", nav: "Dokumentasi", t: "Dokumentasi Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Dokumentasi Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
+        { id: "hyg", nav: "Hygiene", t: "Daily Inspection Personal Hygiene Sanitasi", n: 2, f: ["date", "site"], cap: (v) => `Daily Inspection Personal Hygiene Sanitasi tgl ${dmy(v.date)} site ${v.site}` },
+        { id: "pack", nav: "Packmeal", t: "Pengantaran Packmeal", n: 1, f: ["date", "time"], cap: (v) => `Pengantaran Packmeal ${hari(v.date)}, ${lng(v.date)} Pukul ${v.time.replace(":", ".")}wita` },
+        {
+          id: "incoming",
+          nav: "Incoming",
+          t: "Incoming Fresh Raw Material",
+          n: 2,
+          lay: "h",
+          f: ["date", "site"],
+          cap: (v) => `Incoming Fresh Raw Material Site ${v.site}
+${hari(v.date)}, ${lng(v.date)}`,
+        },
+        {
+          id: "cek",
+          nav: "Cek Kualitas",
+          t: "Pengecekan Kualitas Fresh Raw Material",
+          n: 6,
+          lay: "g",
+          f: ["date", "site"],
+          cap: (v) => `Pengecekan Kualitas Fresh Raw Material Site ${v.site}
+${hari(v.date)}, ${lng(v.date)}`,
+        },
+        {
+          id: "cuci",
+          nav: "Pencucian",
+          t: "Pencucian Fresh Raw Material",
+          n: 4,
+          lay: "g",
+          f: ["date", "site"],
+          cap: (v) => `Pencucian Fresh Raw Material Site ${v.site}
+${hari(v.date)}, ${lng(v.date)}`,
+        },
       ];
       const slot = (i) => `<label>Foto ${i}${i == 1 ? "" : " (disusun setelah foto sebelumnya)"}</label><input type="file" accept="image/*">`;
       const nav = $("#nav"),
@@ -397,7 +428,7 @@ Golden Rules DPS
           `<section id="p-${f.id}" data-id="${f.id}"><h2>${f.t}</h2><div class="row">${fields}</div>
 <div class="slots">${Array.from({ length: f.n }, (_, i) => slot(i + 1)).join("")}</div>
 <button class="add" data-s="${f.id}" type="button" style="margin-top:10px">+ Foto</button>
-<label>Susunan foto (jika lebih dari satu)</label><select class="lay"><option value="v">Atas – bawah (seperti contoh)</option><option value="h">Berjajar</option></select>
+<label>Susunan foto (jika lebih dari satu)</label><select class="lay"><option value="v">Atas – bawah (seperti contoh)</option><option value="h">Berjajar</option><option value="g">Kolase 2 kolom</option></select>
 <img class="pv" alt="" hidden><label>Keterangan gambar</label><textarea style="min-height:70px"></textarea>
 <div class="btns"><button class="btn wa" data-send="${f.id}">Kirim ke WhatsApp</button><button class="btn" data-dl="${f.id}">Unduh gambar</button></div></section>`,
         );
@@ -419,7 +450,13 @@ Golden Rules DPS
         let W,
           Ht,
           pos = [];
-        if (!h) {
+        if (p.querySelector(".lay").value == "g") {
+          const cw = 540,
+            n = im.length;
+          W = cw * 2 + G;
+          Ht = Math.ceil(n / 2) * (cw + G) - G;
+          im.forEach((_, i) => pos.push([(i % 2) * (cw + G), (i >> 1) * (cw + G), i == n - 1 && i % 2 == 0 ? W : cw, cw]));
+        } else if (!h) {
           W = 1080;
           const hs = im.map((i) => Math.round((i.height * W) / i.width));
           let y = 0;
@@ -444,7 +481,13 @@ Golden Rules DPS
         const x = c.getContext("2d");
         x.fillStyle = "#fff";
         x.fillRect(0, 0, W, Ht);
-        im.forEach((i, k) => x.drawImage(i, ...pos[k]));
+        im.forEach((i, k) => {
+          const [dx, dy, dw, dh] = pos[k],
+            s = Math.max(dw / i.width, dh / i.height),
+            sw = dw / s,
+            sh = dh / s;
+          x.drawImage(i, (i.width - sw) / 2, (i.height - sh) / 2, sw, sh, dx, dy, dw, dh);
+        });
         return new Promise((r) => c.toBlob(r, "image/jpeg", 0.9));
       }
       async function preview(p) {
@@ -803,9 +846,47 @@ Golden Rules DPS
           }
         };
       })();
+      FORMS.forEach((f) => {
+        if (f.lay) $("#p-" + f.id + " .lay").value = f.lay;
+      });
+      /* ---- Penerimaan Barang: satu tab, isi mengikuti dropdown ---- */
+      (() => {
+        const SUB = ["incoming", "cek", "cuci"];
+        const KAT = [
+          ["sayur", "Sayur & Buah (Chilled)"],
+          ["dairyc", "Dairy (Chilled) – segera hadir"],
+          ["ikanc", "Ikan (Chilled) – segera hadir"],
+          ["daging", "Daging & Unggas (Frozen) – segera hadir"],
+          ["ikanf", "Ikan & Seafood (Frozen) – segera hadir"],
+          ["dairyf", "Dairy & Lainnya (Frozen) – segera hadir"],
+          ["dry", "Dry Food – segera hadir"],
+          ["nonfood", "Dry Non Food – segera hadir"],
+        ];
+        nav.querySelector("[data-t=scan]").insertAdjacentHTML("beforebegin", "<button data-t=terima>Penerimaan</button>");
+        SUB.forEach((id) => nav.querySelector("[data-t=" + id + "]").remove());
+        document.head.insertAdjacentHTML("beforeend", "<style>#p-terima section{border:0;padding:0;background:none}#p-terima section h2{display:none}</style>");
+        main.insertAdjacentHTML(
+          "beforeend",
+          `<section id='p-terima'><h2>Penerimaan Barang</h2>
+<div class='row'><div><label>Kategori</label><select id='t_kat'>${KAT.map(([v, l]) => `<option value='${v}'>${l}</option>`).join("")}</select></div>
+<div id='t_lapw'><label>Laporan</label><select id='t_lap'><option value='incoming'>Incoming</option><option value='cek'>Pengecekan Kualitas</option><option value='cuci'>Pencucian</option></select></div></div>
+<p id='t_soon' hidden style='color:var(--mut)'>Form untuk kategori ini segera hadir.</p><div id='t_box'></div></section>`,
+        );
+        SUB.forEach((id) => $("#t_box").append($("#p-" + id)));
+        const sel = () => {
+          const ok = $("#t_kat").value == "sayur",
+            r = $("#t_lap").value;
+          $("#t_soon").hidden = ok;
+          $("#t_lapw").hidden = !ok;
+          SUB.forEach((id) => $("#p-" + id).classList.toggle("on", ok && id == r));
+        };
+        $("#t_kat").onchange = sel;
+        $("#t_lap").onchange = sel;
+        sel();
+      })();
       /* ---- Tabs ---- */
       function show(id) {
-        $$("section").forEach((s) => s.classList.toggle("on", s.id == "p-" + id));
+        $$("main>section").forEach((s) => s.classList.toggle("on", s.id == "p-" + id));
         $$("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.t == id));
       }
       nav.onclick = (e) => {
