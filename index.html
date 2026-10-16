@@ -1,898 +1,288 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Laporan Harian BCP</title>
-    <style>
-      :root {
-        --bg: #f3f5f9;
-        --card: #fff;
-        --tx: #14213d;
-        --mut: #5b6678;
-        --bd: #d5dbe6;
-        --navy: #0b2545;
-        --or: #f57c00;
-        box-sizing: border-box;
-        padding-top: env(safe-area-inset-top, 0px);
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-          --bg: #0a1220;
-          --card: #121c30;
-          --tx: #e8edf6;
-          --mut: #9aa7bd;
-          --bd: #26344f;
-          --navy: #16335f;
-        }
-      }
-      :root[data-theme="dark"] {
-        --bg: #0a1220;
-        --card: #121c30;
-        --tx: #e8edf6;
-        --mut: #9aa7bd;
-        --bd: #26344f;
-        --navy: #16335f;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      html {
-        scroll-padding-top: env(safe-area-inset-top, 0px);
-      }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--tx);
-        font:
-          15px/1.45 system-ui,
-          -apple-system,
-          "Segoe UI",
-          Roboto,
-          sans-serif;
-      }
-      header {
-        background: var(--navy);
-        color: #fff;
-        padding: 14px 16px;
-        border-bottom: 4px solid var(--or);
-      }
-      header h1 {
-        margin: 0;
-        font-size: 18px;
-      }
-      header p {
-        margin: 2px 0 0;
-        font-size: 12px;
-        opacity: 0.8;
-      }
-      nav {
-        display: flex;
-        gap: 6px;
-        overflow-x: auto;
-        padding: 10px 12px;
-        background: var(--bg);
-        position: sticky;
-        top: env(safe-area-inset-top, 0px);
-        z-index: 2;
-      }
-      nav button {
-        flex: none;
-        border: 1px solid var(--bd);
-        background: var(--card);
-        color: var(--tx);
-        border-radius: 999px;
-        padding: 6px 12px;
-        font: inherit;
-        font-size: 14px;
-        cursor: pointer;
-      }
-      nav button.on {
-        background: var(--or);
-        border-color: var(--or);
-        color: #fff;
-        font-weight: 600;
-      }
-      main {
-        max-width: 640px;
-        margin: 0 auto;
-        padding: 0 12px 40px;
-      }
-      section {
-        display: none;
-        background: var(--card);
-        border: 1px solid var(--bd);
-        border-radius: 12px;
-        padding: 14px;
-      }
-      section.on {
-        display: block;
-      }
-      h2 {
-        margin: 0 0 10px;
-        font-size: 16px;
-        color: var(--or);
-      }
-      label {
-        display: block;
-        font-size: 12px;
-        color: var(--mut);
-        margin: 10px 0 3px;
-      }
-      input,
-      select,
-      textarea {
-        width: 100%;
-        font: inherit;
-        color: var(--tx);
-        background: var(--bg);
-        border: 1px solid var(--bd);
-        border-radius: 8px;
-        padding: 9px;
-      }
-      textarea {
-        min-height: 150px;
-        resize: vertical;
-      }
-      .row {
-        display: flex;
-        gap: 8px;
-      }
-      .row > * {
-        flex: 1;
-      }
-      .r {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 6px;
-      }
-      .r input {
-        flex: 1;
-      }
-      .x {
-        width: 38px;
-        border: 1px solid var(--bd);
-        background: var(--bg);
-        color: var(--tx);
-        border-radius: 8px;
-        cursor: pointer;
-      }
-      .add {
-        border: 1px dashed var(--or);
-        background: none;
-        color: var(--or);
-        border-radius: 8px;
-        padding: 7px 12px;
-        font: inherit;
-        cursor: pointer;
-      }
-      .btn {
-        border: 0;
-        border-radius: 10px;
-        padding: 11px 14px;
-        font: inherit;
-        font-weight: 600;
-        cursor: pointer;
-        background: var(--navy);
-        color: #fff;
-      }
-      .btn.wa {
-        background: #1fa855;
-      }
-      .btns {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 12px;
-      }
-      .pv {
-        max-width: 100%;
-        border-radius: 8px;
-        margin-top: 10px;
-        border: 1px solid var(--bd);
-      }
-      .num {
-        counter-reset: n;
-      }
-      .num .r {
-        counter-increment: n;
-      }
-      .num .r::before {
-        content: counter(n) ".";
-        align-self: center;
-        width: 18px;
-        color: var(--mut);
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Laporan Harian BCP</h1>
-      <p>Safety Briefing · Hygiene · Packmeal</p>
-    </header>
-    <nav id="nav"></nav>
-    <main>
-      <section id="p-dsb">
-        <h2>Daily Safety Briefing DPS</h2>
-        <div class="row">
-          <div><label>Tanggal</label><input type="date" id="d_date" /></div>
-          <div><label>Hari</label><input id="d_hari" readonly /></div>
-        </div>
-        <div class="row">
-          <div><label>Lokasi</label><input id="d_lok" value="BCP" /></div>
-          <div><label>Fasilitator</label><input id="d_fas" value="SPV &amp; HSE" /></div>
-        </div>
-        <label>Tim Safety</label><input id="d_tim" value="Muhammad Fadhil Hani" /> <label>Materi Pembahasan</label>
-        <div class="num" data-n="materi"></div>
-        <button class="add" data-a="materi">+ Tambah poin</button>
-        <div class="row">
-          <div><label>Review kerja</label><input id="d_rev" value="Aman" /></div>
-          <div><label>Alasan untuk</label><input id="d_dept" value="All Dept" /></div>
-        </div>
-        <label>Poin alasan</label>
-        <div data-n="alasan"></div>
-        <button class="add" data-a="alasan">+ Tambah poin</button> <label>Plan kerja hari ini</label><input id="d_plan" value="Continue kegiatan operasional All Dept &amp; closing temuan inspeksi internal" />
-        <div class="row">
-          <div><label>Jumlah peserta (orang)</label><input type="number" min="0" id="d_jml" placeholder="isi jumlah" /></div>
-        </div>
-        <label>Golden Rules DPS</label><input id="d_gr" value="Kami bisa, Yakin bisa, Harus bisa" /> <label>Hasil teks</label><textarea id="d_out"></textarea>
-        <div class="btns"><button class="btn wa" id="d_wa">Kirim ke WhatsApp</button><button class="btn" id="d_cp">Salin teks</button></div>
-      </section>
-      <section id="p-scan">
-        <h2>Scan Dokumen</h2>
-        <label>Hasil scan untuk</label
-        ><select id="sc_tg">
-          <option value="hadir">Daftar Hadir Safety Briefing</option>
-          <option value="hyg">Daily Inspection Personal Hygiene Sanitasi</option>
-        </select>
-        <div class="row">
-          <div><label>Ambil dengan kamera</label><input type="file" accept="image/*" capture="environment" id="sc_cam" /></div>
-          <div><label>Atau pilih dari galeri</label><input type="file" accept="image/*" id="sc_gal" /></div>
-        </div>
-        <div id="sc_ed" hidden>
-          <label>Geser 4 titik oranye ke sudut kertas</label>
-          <canvas id="sc_cv" style="width: 100%; touch-action: none; border: 1px solid var(--bd); border-radius: 8px"></canvas>
-          <div class="row">
-            <div>
-              <label>Mode</label
-              ><select id="sc_md">
-                <option value="doc">Dokumen (bersih)</option>
-                <option value="bw">Hitam putih</option>
-                <option value="asli">Warna asli</option>
-              </select>
-            </div>
-            <div><label>&nbsp;</label><button class="btn" id="sc_rot" type="button" style="width: 100%">Putar 90°</button></div>
-          </div>
-          <label style="display: flex; gap: 8px; align-items: center"><input type="checkbox" id="sc_auto" checked style="width: auto" /> Otomatis isi Foto 1 pada form tujuan</label>
-          <div class="btns"><button class="btn wa" id="sc_go" type="button">Proses scan</button></div>
-        </div>
-        <div id="sc_out" hidden>
-          <img id="sc_img" class="pv" alt="" />
-          <p id="sc_msg" style="color: var(--mut); font-size: 13px"></p>
-          <div class="btns"><button class="btn wa" id="sc_wa" type="button">Kirim ke WhatsApp</button><button class="btn" id="sc_dl" type="button">Unduh</button><button class="btn" id="sc_open" type="button">Buka form tujuan</button></div>
-        </div>
-      </section>
-    </main>
-    <script>
-      const $ = (s) => document.querySelector(s),
-        $$ = (s) => [...document.querySelectorAll(s)];
-      const HR = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum’at", "Sabtu"],
-        BL = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      const pad = (n) => String(n).padStart(2, "0");
-      const today = () => {
-        const d = new Date();
-        return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
-      };
-      const nowHM = () => {
-        const d = new Date();
-        return pad(d.getHours()) + ":" + pad(d.getMinutes());
-      };
-      const pd = (s) => {
-        const [y, m, d] = (s || today()).split("-").map(Number);
-        return new Date(y, m - 1, d);
-      };
-      const hari = (s) => HR[pd(s).getDay()],
-        lng = (s) => {
-          const d = pd(s);
-          return d.getDate() + " " + BL[d.getMonth()] + " " + d.getFullYear();
-        };
-      const dmy = (s) => {
-        const [y, m, d] = (s || today()).split("-");
-        return d + "/" + m + "/" + y.slice(2);
-      };
-      const esc = (s) => s.replace(/"/g, "&quot;");
-      const row = (v) => `<div class="r"><input value="${esc(v)}"><button class="x" type="button">×</button></div>`;
-      const DEF = {
-        materi: ["Pembacaan Golden Rules", "Review Planning kerja", "Kegiatan Pembersihan area Camp", "Penerapan 5R"],
-        alasan: ["Wajib memakai APD", "Mengisi Checklist kebersihan", "Memastikan area room bersih, wangi", "Melakukan Double Check", "Komunikasi 2 arah"],
-      };
-      for (const k in DEF) $(`[data-n=${k}]`).innerHTML = DEF[k].map(row).join("");
-      $("#d_date").value = today();
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laporan Harian BCP</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--tx:#14213d;--mut:#5b6678;--bd:#d5dbe6;--navy:#0b2545;--or:#f57c00;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1220;--card:#121c30;--tx:#e8edf6;--mut:#9aa7bd;--bd:#26344f;--navy:#16335f}}
+:root[data-theme="dark"]{--bg:#0a1220;--card:#121c30;--tx:#e8edf6;--mut:#9aa7bd;--bd:#26344f;--navy:#16335f}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--navy);color:#fff;padding:14px 16px;border-bottom:4px solid var(--or)}
+header h1{margin:0;font-size:18px}header p{margin:2px 0 0;font-size:12px;opacity:.8}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:var(--bg);position:sticky;top:env(safe-area-inset-top,0px);z-index:2}
+nav button{flex:none;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:999px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+nav button.on{background:var(--or);border-color:var(--or);color:#fff;font-weight:600}
+main{max-width:640px;margin:0 auto;padding:0 12px 40px}
+section{display:none;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+section.on{display:block}
+h2{margin:0 0 10px;font-size:16px;color:var(--or)}
+label{display:block;font-size:12px;color:var(--mut);margin:10px 0 3px}
+input,select,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:9px}
+textarea{min-height:150px;resize:vertical}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.r{display:flex;gap:6px;margin-bottom:6px}.r input{flex:1}
+.x{width:38px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:8px;cursor:pointer}
+.add{border:1px dashed var(--or);background:none;color:var(--or);border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer}
+.btn{border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:600;cursor:pointer;background:var(--navy);color:#fff}
+.btn.wa{background:#1fa855}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pv{max-width:100%;border-radius:8px;margin-top:10px;border:1px solid var(--bd)}
+.num{counter-reset:n}.num .r{counter-increment:n}.num .r::before{content:counter(n)".";align-self:center;width:18px;color:var(--mut)}
+</style>
+</head>
+<body>
+<header><h1>Laporan Harian BCP</h1><p>Safety Briefing · Hygiene · Packmeal</p></header>
+<nav id="nav"></nav>
+<main>
+<section id="p-dsb">
+<h2>Daily Safety Briefing DPS</h2>
+<div class="row"><div><label>Tanggal</label><input type="date" id="d_date"></div><div><label>Hari</label><input id="d_hari" readonly></div></div>
+<div class="row"><div><label>Lokasi</label><input id="d_lok" value="BCP"></div><div><label>Fasilitator</label><input id="d_fas" value="SPV &amp; HSE"></div></div>
+<label>Tim Safety</label><input id="d_tim" value="Muhammad Fadhil Hani">
+<label>Materi Pembahasan</label><div class="num" data-n="materi"></div><button class="add" data-a="materi">+ Tambah poin</button>
+<div class="row"><div><label>Review kerja</label><input id="d_rev" value="Aman"></div><div><label>Alasan untuk</label><input id="d_dept" value="All Dept"></div></div>
+<label>Poin alasan</label><div data-n="alasan"></div><button class="add" data-a="alasan">+ Tambah poin</button>
+<label>Plan kerja hari ini</label><input id="d_plan" value="Continue kegiatan operasional All Dept &amp; closing temuan inspeksi internal">
+<div class="row"><div><label>Jumlah peserta (orang)</label><input type="number" min="0" id="d_jml" placeholder="isi jumlah"></div></div>
+<label>Golden Rules DPS</label><input id="d_gr" value="Kami bisa, Yakin bisa, Harus bisa">
+<label>Hasil teks</label><textarea id="d_out"></textarea>
+<div class="btns"><button class="btn wa" id="d_wa">Kirim ke WhatsApp</button><button class="btn" id="d_cp">Salin teks</button></div>
+</section>
+<section id='p-scan'><h2>Scan Dokumen</h2>
+<label>Hasil scan untuk</label><select id='sc_tg'><option value='hadir'>Daftar Hadir Safety Briefing</option><option value='hyg'>Daily Inspection Personal Hygiene Sanitasi</option></select>
+<div class='row'><div><label>Ambil dengan kamera</label><input type='file' accept='image/*' capture='environment' id='sc_cam'></div><div><label>Atau pilih dari galeri</label><input type='file' accept='image/*' id='sc_gal'></div></div>
+<div id='sc_ed' hidden><label>Geser 4 titik oranye ke sudut kertas</label>
+<canvas id='sc_cv' style='width:100%;touch-action:none;border:1px solid var(--bd);border-radius:8px'></canvas>
+<div class='row'><div><label>Mode</label><select id='sc_md'><option value='doc'>Dokumen (bersih)</option><option value='bw'>Hitam putih</option><option value='asli'>Warna asli</option></select></div><div><label>&nbsp;</label><button class='btn' id='sc_rot' type='button' style='width:100%'>Putar 90°</button></div></div>
+<label style='display:flex;gap:8px;align-items:center'><input type='checkbox' id='sc_auto' checked style='width:auto'> Otomatis isi Foto 1 pada form tujuan</label>
+<div class='btns'><button class='btn wa' id='sc_go' type='button'>Proses scan</button></div></div>
+<div id='sc_out' hidden><img id='sc_img' class='pv' alt=''><p id='sc_msg' style='color:var(--mut);font-size:13px'></p>
+<div class='btns'><button class='btn wa' id='sc_wa' type='button'>Kirim ke WhatsApp</button><button class='btn' id='sc_dl' type='button'>Unduh</button><button class='btn' id='sc_open' type='button'>Buka form tujuan</button></div></div>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const HR=['Minggu','Senin','Selasa','Rabu','Kamis','Jum’at','Sabtu'],BL=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const pad=n=>String(n).padStart(2,'0');
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const nowHM=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const pd=s=>{const[y,m,d]=(s||today()).split('-').map(Number);return new Date(y,m-1,d)};
+const hari=s=>HR[pd(s).getDay()],lng=s=>{const d=pd(s);return d.getDate()+' '+BL[d.getMonth()]+' '+d.getFullYear()};
+const dmy=s=>{const[y,m,d]=(s||today()).split('-');return d+'/'+m+'/'+y.slice(2)};
+const esc=s=>s.replace(/"/g,'&quot;');
+const row=v=>`<div class="r"><input value="${esc(v)}"><button class="x" type="button">×</button></div>`;
+const DEF={materi:['Pembacaan Golden Rules','Review Planning kerja','Kegiatan Pembersihan area Camp','Penerapan 5R'],alasan:['Wajib memakai APD','Mengisi Checklist kebersihan','Memastikan area room bersih, wangi','Melakukan Double Check','Komunikasi 2 arah']};
+for(const k in DEF)$(`[data-n=${k}]`).innerHTML=DEF[k].map(row).join('');
+$('#d_date').value=today();
 
-      /* ---- Daily Safety Briefing text ---- */
-      const g = (n) =>
-        $$(`[data-n=${n}] input`)
-          .map((i) => i.value.trim())
-          .filter(Boolean);
-      function gen() {
-        const d = $("#d_date").value || today(),
-          v = (id) => $("#" + id).value.trim();
-        $("#d_hari").value = hari(d);
-        $("#d_out").value = `Daily Safety Briefing DPS
+/* ---- Daily Safety Briefing text ---- */
+const g=n=>$$(`[data-n=${n}] input`).map(i=>i.value.trim()).filter(Boolean);
+function gen(){
+  const d=$('#d_date').value||today(),v=id=>$('#'+id).value.trim();
+  $('#d_hari').value=hari(d);
+  $('#d_out').value=`Daily Safety Briefing DPS
 Hari : ${hari(d)}
 Tanggal : ${lng(d)}
-Lokasi : ${v("d_lok")}
-Fasilitator : ${v("d_fas")}
-Tim Safety : ${v("d_tim")}
+Lokasi : ${v('d_lok')}
+Fasilitator : ${v('d_fas')}
+Tim Safety : ${v('d_tim')}
 
 Materi Pembahasan
-${g("materi")
-  .map((t, i) => i + 1 + ". " + t)
-  .join("\n")}
+${g('materi').map((t,i)=>(i+1)+'. '+t).join('\n')}
 
-Review kerja : ${v("d_rev")}
+Review kerja : ${v('d_rev')}
 Alasan :
-${v("d_dept")}
-${g("alasan")
-  .map((t) => "* " + t)
-  .join("\n")}
+${v('d_dept')}
+${g('alasan').map(t=>'* '+t).join('\n')}
 
-Plan kerja hari ini : ${v("d_plan")}
+Plan kerja hari ini : ${v('d_plan')}
 
-Jumlah peserta : ${v("d_jml") || ".."} orang
+Jumlah peserta : ${v('d_jml')||'..'} orang
 
 Golden Rules DPS
-"${v("d_gr")}"`;
-      }
-      document.addEventListener("click", (e) => {
-        const t = e.target;
-        if (t.classList.contains("x")) {
-          t.parentElement.remove();
-          gen();
-        }
-        if (t.dataset.a) {
-          $(`[data-n=${t.dataset.a}]`).insertAdjacentHTML("beforeend", row(""));
-          gen();
-          $$(`[data-n=${t.dataset.a}] input`).pop().focus();
-        }
-      });
-      $("#p-dsb").addEventListener("input", gen);
-      $("#d_cp").onclick = async () => {
-        try {
-          await navigator.clipboard.writeText($("#d_out").value);
-          alert("Teks disalin");
-        } catch (e) {
-          $("#d_out").select();
-          document.execCommand("copy");
-        }
-      };
-      $("#d_wa").onclick = () => {
-        const t = $("#d_out").value;
-        if (navigator.share) navigator.share({ text: t }).catch(() => {});
-        else window.open("https://wa.me/?text=" + encodeURIComponent(t));
-      };
-      gen();
+"${v('d_gr')}"`;
+}
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.classList.contains('x')){t.parentElement.remove();gen()}
+  if(t.dataset.a){$(`[data-n=${t.dataset.a}]`).insertAdjacentHTML('beforeend',row(''));gen();$$(`[data-n=${t.dataset.a}] input`).pop().focus()}
+});
+$('#p-dsb').addEventListener('input',gen);
+$('#d_cp').onclick=async()=>{try{await navigator.clipboard.writeText($('#d_out').value);alert('Teks disalin')}catch(e){$('#d_out').select();document.execCommand('copy')}};
+$('#d_wa').onclick=()=>{const t=$('#d_out').value;if(navigator.share)navigator.share({text:t}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(t))};
+gen();
 
-      /* ---- Photo forms ---- */
-      const FD = { date: ["Tanggal", "date", today], site: ["Site", "text", () => "BCP"], shift: ["Shift", "select", ["Pagi", "Malam"]], time: ["Pukul", "time", nowHM] };
-      const FORMS = [
-        { id: "hadir", nav: "Daftar Hadir", t: "Daftar Hadir Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Daftar Hadir Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
-        { id: "dok", nav: "Dokumentasi", t: "Dokumentasi Safety Briefing", n: 1, f: ["date", "site", "shift"], cap: (v) => `Dokumentasi Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}` },
-        { id: "hyg", nav: "Hygiene", t: "Daily Inspection Personal Hygiene Sanitasi", n: 2, f: ["date", "site"], cap: (v) => `Daily Inspection Personal Hygiene Sanitasi tgl ${dmy(v.date)} site ${v.site}` },
-        { id: "pack", nav: "Packmeal", t: "Pengantaran Packmeal", n: 1, f: ["date", "time"], cap: (v) => `Pengantaran Packmeal ${hari(v.date)}, ${lng(v.date)} Pukul ${v.time.replace(":", ".")}wita` },
-        {
-          id: "incoming",
-          nav: "Incoming",
-          t: "Incoming Fresh Raw Material",
-          n: 2,
-          lay: "h",
-          f: ["date", "site"],
-          cap: (v) => `Incoming Fresh Raw Material Site ${v.site}
-${hari(v.date)}, ${lng(v.date)}`,
-        },
-        {
-          id: "cek",
-          nav: "Cek Kualitas",
-          t: "Pengecekan Kualitas Fresh Raw Material",
-          n: 6,
-          lay: "g",
-          f: ["date", "site"],
-          cap: (v) => `Pengecekan Kualitas Fresh Raw Material Site ${v.site}
-${hari(v.date)}, ${lng(v.date)}`,
-        },
-        {
-          id: "cuci",
-          nav: "Pencucian",
-          t: "Pencucian Fresh Raw Material",
-          n: 4,
-          lay: "g",
-          f: ["date", "site"],
-          cap: (v) => `Pencucian Fresh Raw Material Site ${v.site}
-${hari(v.date)}, ${lng(v.date)}`,
-        },
-      ];
-      const slot = (i) => `<label>Foto ${i}${i == 1 ? "" : " (disusun setelah foto sebelumnya)"}</label><input type="file" accept="image/*">`;
-      const nav = $("#nav"),
-        main = $("main");
-      nav.innerHTML = '<button data-t="dsb">Safety Briefing</button>' + FORMS.map((f) => `<button data-t="${f.id}">${f.nav}</button>`).join("");
-      FORMS.forEach((f) => {
-        const fields = f.f
-          .map((k) => {
-            const [l, ty, d] = FD[k];
-            return `<div><label>${l}</label>` + (ty == "select" ? `<select data-k="${k}">${d.map((o) => `<option>${o}</option>`).join("")}</select>` : `<input type="${ty}" data-k="${k}" value="${d()}">`) + "</div>";
-          })
-          .join("");
-        main.insertAdjacentHTML(
-          "beforeend",
-          `<section id="p-${f.id}" data-id="${f.id}"><h2>${f.t}</h2><div class="row">${fields}</div>
-<div class="slots">${Array.from({ length: f.n }, (_, i) => slot(i + 1)).join("")}</div>
+/* ---- Photo forms ---- */
+const FD={date:['Tanggal','date',today],site:['Site','text',()=>'BCP'],shift:['Shift','select',['Pagi','Malam']],time:['Pukul','time',nowHM]};
+const FORMS=[
+ {id:'hadir',nav:'Daftar Hadir',t:'Daftar Hadir Safety Briefing',n:1,f:['date','site','shift'],cap:v=>`Daftar Hadir Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}`},
+ {id:'dok',nav:'Dokumentasi',t:'Dokumentasi Safety Briefing',n:1,f:['date','site','shift'],cap:v=>`Dokumentasi Safety Briefing tgl ${dmy(v.date)} site ${v.site} Shift ${v.shift}`},
+ {id:'hyg',nav:'Hygiene',t:'Daily Inspection Personal Hygiene Sanitasi',n:1,lay:'h',f:['date','site'],cap:v=>`Daily Inspection Personal Hygiene Sanitasi tgl ${dmy(v.date)} site ${v.site}`},
+ {id:'pack',nav:'Packmeal',t:'Pengantaran Packmeal',n:1,f:['date','time'],cap:v=>`Pengantaran Packmeal ${hari(v.date)}, ${lng(v.date)} Pukul ${v.time.replace(':','.')}wita`},
+ {id:'incoming',nav:'Penerimaan',t:'Penerimaan Fresh Raw Material',n:1,lay:'h',f:['date','site'],cap:v=>`Penerimaan Fresh Raw Material Site ${v.site}
+${hari(v.date)}, ${lng(v.date)}`},
+ {id:'cek',nav:'Cek Kualitas',t:'Pengecekan Kualitas Fresh Raw Material',n:1,lay:'g',f:['date','site'],cap:v=>`Pengecekan Kualitas Fresh Raw Material Site ${v.site}
+${hari(v.date)}, ${lng(v.date)}`},
+ {id:'cuci',nav:'Pencucian',t:'Pencucian Fresh Raw Material',n:1,lay:'g',f:['date','site'],cap:v=>`Pencucian Fresh Raw Material Site ${v.site}
+${hari(v.date)}, ${lng(v.date)}`},
+ {id:'ikin',nav:'Ikan Penerimaan',t:'Penerimaan Frozen Material (Ikan)',n:1,lay:'v',f:['date','site'],cap:v=>`Penerimaan Frozen Material (Ikan) Site ${v.site} ${v.date.replace(/-/g,'')}`},
+ {id:'ikek',nav:'Ikan Cek',t:'Pengecekan Suhu, Exp, dan Kualitas Frozen Material (Ikan)',n:1,lay:'g',f:['date','site'],cap:v=>`Pengecekan Suhu, Exp, dan Kualitas Frozen Material (Ikan) Site ${v.site} ${v.date.replace(/-/g,'')}`}
+];
+const slot=i=>`<label>Foto ${i}${i==1?' (bisa pilih lebih dari satu)':' (disusun setelah foto sebelumnya)'}</label><input type="file" accept="image/*" multiple>`;
+const nav=$('#nav'),main=$('main');
+nav.innerHTML='<button data-t="dsb">Safety Briefing</button>'+FORMS.map(f=>`<button data-t="${f.id}">${f.nav}</button>`).join('');
+FORMS.forEach(f=>{
+  const fields=f.f.map(k=>{const[l,ty,d]=FD[k];return `<div><label>${l}</label>`+(ty=='select'?`<select data-k="${k}">${d.map(o=>`<option>${o}</option>`).join('')}</select>`:`<input type="${ty}" data-k="${k}" value="${d()}">`)+'</div>'}).join('');
+  main.insertAdjacentHTML('beforeend',`<section id="p-${f.id}" data-id="${f.id}"><h2>${f.t}</h2><div class="row">${fields}</div>
+<div class="slots">${Array.from({length:f.n},(_,i)=>slot(i+1)).join('')}</div>
 <button class="add" data-s="${f.id}" type="button" style="margin-top:10px">+ Foto</button>
 <label>Susunan foto (jika lebih dari satu)</label><select class="lay"><option value="v">Atas – bawah (seperti contoh)</option><option value="h">Berjajar</option><option value="g">Kolase 2 kolom</option></select>
 <img class="pv" alt="" hidden><label>Keterangan gambar</label><textarea style="min-height:70px"></textarea>
-<div class="btns"><button class="btn wa" data-send="${f.id}">Kirim ke WhatsApp</button><button class="btn" data-dl="${f.id}">Unduh gambar</button></div></section>`,
-        );
-      });
-      const cap = (p) => {
-        const f = FORMS.find((x) => x.id == p.dataset.id),
-          v = {};
-        $$(`#${p.id} [data-k]`).forEach((e) => (v[e.dataset.k] = e.value.trim() || (e.dataset.k == "site" ? "BCP" : "")));
-        p.querySelector("textarea").value = f.cap(v);
-      };
-      async function build(p) {
-        const fs = $$(`#${p.id} input[type=file]`)
-          .map((i) => i.files[0])
-          .filter(Boolean);
-        if (!fs.length) return null;
-        const im = await Promise.all(fs.map((f) => createImageBitmap(f))),
-          h = p.querySelector(".lay").value == "h",
-          G = 8;
-        let W,
-          Ht,
-          pos = [];
-        if (p.querySelector(".lay").value == "g") {
-          const cw = 540,
-            n = im.length;
-          W = cw * 2 + G;
-          Ht = Math.ceil(n / 2) * (cw + G) - G;
-          im.forEach((_, i) => pos.push([(i % 2) * (cw + G), (i >> 1) * (cw + G), i == n - 1 && i % 2 == 0 ? W : cw, cw]));
-        } else if (!h) {
-          W = 1080;
-          const hs = im.map((i) => Math.round((i.height * W) / i.width));
-          let y = 0;
-          hs.forEach((x) => {
-            pos.push([0, y, W, x]);
-            y += x + G;
-          });
-          Ht = y - G;
-        } else {
-          Ht = 1080;
-          const ws = im.map((i) => Math.round((i.width * Ht) / i.height));
-          let x = 0;
-          ws.forEach((w) => {
-            pos.push([x, 0, w, Ht]);
-            x += w + G;
-          });
-          W = x - G;
-        }
-        const c = document.createElement("canvas");
-        c.width = W;
-        c.height = Ht;
-        const x = c.getContext("2d");
-        x.fillStyle = "#fff";
-        x.fillRect(0, 0, W, Ht);
-        im.forEach((i, k) => {
-          const [dx, dy, dw, dh] = pos[k],
-            s = Math.max(dw / i.width, dh / i.height),
-            sw = dw / s,
-            sh = dh / s;
-          x.drawImage(i, (i.width - sw) / 2, (i.height - sh) / 2, sw, sh, dx, dy, dw, dh);
-        });
-        return new Promise((r) => c.toBlob(r, "image/jpeg", 0.9));
-      }
-      async function preview(p) {
-        const b = await build(p),
-          im = p.querySelector(".pv");
-        if (b) {
-          im.src = URL.createObjectURL(b);
-          im.hidden = false;
-        } else im.hidden = true;
-      }
-      FORMS.forEach((f) => {
-        const p = $("#p-" + f.id);
-        cap(p);
-        p.addEventListener("input", (e) => {
-          if (e.target.dataset.k) cap(p);
-        });
-        p.addEventListener("change", (e) => {
-          if (e.target.type == "file" || e.target.classList.contains("lay")) preview(p);
-        });
-      });
-      document.addEventListener("click", async (e) => {
-        const t = e.target;
-        if (t.dataset.s) {
-          const sl = $(`#p-${t.dataset.s} .slots`);
-          sl.insertAdjacentHTML("beforeend", slot(sl.querySelectorAll("input").length + 1));
-        }
-        if (t.dataset.send || t.dataset.dl) {
-          const p = $("#p-" + (t.dataset.send || t.dataset.dl)),
-            b = await build(p),
-            text = p.querySelector("textarea").value;
-          if (!b) return alert("Pilih foto dulu");
-          const file = new File([b], p.dataset.id + "-" + Date.now() + ".jpg", { type: "image/jpeg" });
-          const save = () => {
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(b);
-            a.download = file.name;
-            a.click();
-          };
-          if (t.dataset.dl) return save();
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({ files: [file], text });
-            } catch (_) {}
-          } else {
-            save();
-            try {
-              await navigator.clipboard.writeText(text);
-            } catch (_) {}
-            alert("Gambar diunduh dan keterangan disalin. Buka WhatsApp, lampirkan gambar, lalu tempel keterangan.");
-            window.open("https://wa.me/?text=" + encodeURIComponent(text));
-          }
-        }
-      });
-      /* ---- Packmeal: jam realtime, tetap bisa diubah manual ---- */
-      (() => {
-        const p = $("#p-pack"),
-          ti = p.querySelector("[data-k=time]"),
-          ta = p.querySelector("textarea");
-        let live = true;
-        const st = document.createElement("button");
-        st.type = "button";
-        st.className = "add";
-        st.style.marginTop = "8px";
-        ti.parentElement.appendChild(st);
-        const lab = () => {
-          st.textContent = live ? "● Realtime (ikut jam perangkat)" : "↻ Kembali ke jam realtime";
-        };
-        const tick = () => {
-          if (!live) return;
-          const n = nowHM();
-          if (ti.value !== n) {
-            ti.value = n;
-            cap(p);
-          }
-        };
-        ti.addEventListener("input", () => {
-          live = false;
-          lab();
-        });
-        ta.addEventListener("input", () => {
-          live = false;
-          lab();
-        });
-        st.onclick = () => {
-          live = true;
-          lab();
-          tick();
-        };
-        document.addEventListener("visibilitychange", tick);
-        setInterval(tick, 1000);
-        lab();
-        tick();
-      })();
-      /* ---- Scan dokumen ---- */
-      (() => {
-        nav.insertAdjacentHTML("beforeend", '<button data-t="scan">Scan</button>');
-        const cv = $("#sc_cv"),
-          cx = cv.getContext("2d"),
-          S = document.createElement("canvas");
-        let pts = [],
-          ds = 1,
-          drag = -1,
-          res = null;
-        const TG = { hadir: "Daftar Hadir", hyg: "Inspection Personal Hygiene" };
-        const draw = () => {
-          ds = Math.min(1, 720 / S.width);
-          cv.width = S.width * ds;
-          cv.height = S.height * ds;
-          cx.drawImage(S, 0, 0, cv.width, cv.height);
-          cx.beginPath();
-          pts.forEach(([x, y], i) => cx[i ? "lineTo" : "moveTo"](x * ds, y * ds));
-          cx.closePath();
-          cx.fillStyle = "rgba(245,124,0,.22)";
-          cx.fill();
-          cx.lineWidth = 3;
-          cx.strokeStyle = "#f57c00";
-          cx.stroke();
-          pts.forEach(([x, y]) => {
-            cx.beginPath();
-            cx.arc(x * ds, y * ds, 14, 0, 7);
-            cx.fillStyle = "#f57c00";
-            cx.fill();
-            cx.strokeStyle = "#fff";
-            cx.stroke();
-          });
-        };
-        const init = () => {
-          const w = S.width,
-            h = S.height,
-            i = 0.06;
-          pts = [
-            [w * i, h * i],
-            [w * (1 - i), h * i],
-            [w * (1 - i), h * (1 - i)],
-            [w * i, h * (1 - i)],
-          ];
-          res = null;
-          $("#sc_out").hidden = true;
-          $("#sc_ed").hidden = false;
-          draw();
-        };
-        const load = async (f) => {
-          if (!f) return;
-          const b = await createImageBitmap(f),
-            m = Math.min(1, 2400 / Math.max(b.width, b.height));
-          S.width = Math.round(b.width * m);
-          S.height = Math.round(b.height * m);
-          S.getContext("2d").drawImage(b, 0, 0, S.width, S.height);
-          init();
-        };
-        $("#sc_cam").onchange = (e) => load(e.target.files[0]);
-        $("#sc_gal").onchange = (e) => load(e.target.files[0]);
-        const pos = (e) => {
-          const r = cv.getBoundingClientRect();
-          return [((e.clientX - r.left) * cv.width) / r.width / ds, ((e.clientY - r.top) * cv.height) / r.height / ds];
-        };
-        cv.onpointerdown = (e) => {
-          const [x, y] = pos(e);
-          let best = -1,
-            bd = 1e9;
-          pts.forEach((p, i) => {
-            const d = Math.hypot(p[0] - x, p[1] - y) * ds;
-            if (d < bd) {
-              bd = d;
-              best = i;
-            }
-          });
-          if (bd < (44 * cv.width) / cv.getBoundingClientRect().width) {
-            drag = best;
-            cv.setPointerCapture(e.pointerId);
-          }
-        };
-        cv.onpointermove = (e) => {
-          if (drag < 0) return;
-          const [x, y] = pos(e);
-          pts[drag] = [Math.max(0, Math.min(S.width, x)), Math.max(0, Math.min(S.height, y))];
-          draw();
-        };
-        cv.onpointerup = cv.onpointercancel = () => {
-          drag = -1;
-        };
-        $("#sc_rot").onclick = () => {
-          const t = document.createElement("canvas");
-          t.width = S.height;
-          t.height = S.width;
-          const c = t.getContext("2d");
-          c.translate(t.width, 0);
-          c.rotate(Math.PI / 2);
-          c.drawImage(S, 0, 0);
-          S.width = t.width;
-          S.height = t.height;
-          S.getContext("2d").drawImage(t, 0, 0);
-          init();
-        };
-        function homo(d, s) {
-          const A = [],
-            B = [];
-          for (let i = 0; i < 4; i++) {
-            const [x, y] = d[i],
-              [u, v] = s[i];
-            A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]);
-            B.push(u);
-            A.push([0, 0, 0, x, y, 1, -v * x, -v * y]);
-            B.push(v);
-          }
-          for (let i = 0; i < 8; i++) {
-            let m = i;
-            for (let r = i + 1; r < 8; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r;
-            [A[i], A[m]] = [A[m], A[i]];
-            [B[i], B[m]] = [B[m], B[i]];
-            for (let r = i + 1; r < 8; r++) {
-              const f = A[r][i] / A[i][i];
-              for (let c = i; c < 8; c++) A[r][c] -= f * A[i][c];
-              B[r] -= f * B[i];
-            }
-          }
-          const X = Array(8);
-          for (let i = 7; i >= 0; i--) {
-            let s = B[i];
-            for (let c = i + 1; c < 8; c++) s -= A[i][c] * X[c];
-            X[i] = s / A[i][i];
-          }
-          return X;
-        }
-        function warp(q, W, H) {
-          const sw = S.width,
-            sh = S.height,
-            sd = S.getContext("2d").getImageData(0, 0, sw, sh).data,
-            k = homo(
-              [
-                [0, 0],
-                [W, 0],
-                [W, H],
-                [0, H],
-              ],
-              q,
-            ),
-            od = new ImageData(W, H),
-            o = od.data;
-          for (let y = 0; y < H; y++)
-            for (let x = 0; x < W; x++) {
-              const w = k[6] * x + k[7] * y + 1,
-                u = (k[0] * x + k[1] * y + k[2]) / w,
-                v = (k[3] * x + k[4] * y + k[5]) / w,
-                i = (y * W + x) * 4;
-              o[i + 3] = 255;
-              if (u < 0 || v < 0 || u >= sw - 1 || v >= sh - 1) {
-                o[i] = o[i + 1] = o[i + 2] = 255;
-                continue;
-              }
-              const x0 = u | 0,
-                y0 = v | 0,
-                fx = u - x0,
-                fy = v - y0,
-                p = (y0 * sw + x0) * 4,
-                p2 = p + sw * 4;
-              for (let c = 0; c < 3; c++) o[i + c] = (sd[p + c] * (1 - fx) + sd[p + 4 + c] * fx) * (1 - fy) + (sd[p2 + c] * (1 - fx) + sd[p2 + 4 + c] * fx) * fy;
-            }
-          return od;
-        }
-        function enh(od, mode) {
-          if (mode == "asli") return;
-          const D = od.data,
-            W = od.width,
-            H = od.height,
-            g = new Uint8Array(W * H);
-          for (let i = 0; i < W * H; i++) g[i] = 0.299 * D[i * 4] + 0.587 * D[i * 4 + 1] + 0.114 * D[i * 4 + 2];
-          const I = new Uint32Array((W + 1) * (H + 1));
-          for (let y = 0; y < H; y++) {
-            let r = 0;
-            for (let x = 0; x < W; x++) {
-              r += g[y * W + x];
-              I[(y + 1) * (W + 1) + x + 1] = I[y * (W + 1) + x + 1] + r;
-            }
-          }
-          const k = Math.max(8, W >> 4);
-          for (let y = 0; y < H; y++) {
-            const y0 = Math.max(0, y - k),
-              y1 = Math.min(H, y + k + 1);
-            for (let x = 0; x < W; x++) {
-              const x0 = Math.max(0, x - k),
-                x1 = Math.min(W, x + k + 1),
-                m = (I[y1 * (W + 1) + x1] - I[y0 * (W + 1) + x1] - I[y1 * (W + 1) + x0] + I[y0 * (W + 1) + x0]) / ((x1 - x0) * (y1 - y0)),
-                v = g[y * W + x];
-              const o = mode == "bw" ? (v < m * 0.88 ? 0 : 255) : 255 * Math.pow(Math.min(1, (v / (m + 1)) * 1.03), 1.8),
-                i = (y * W + x) * 4;
-              D[i] = D[i + 1] = D[i + 2] = o;
-            }
-          }
-        }
-        const toSlot = (id, blob) => {
-          const inp = $("#p-" + id + " input[type=file]"),
-            dt = new DataTransfer();
-          dt.items.add(new File([blob], "scan-" + Date.now() + ".jpg", { type: "image/jpeg" }));
-          inp.files = dt.files;
-          inp.dispatchEvent(new Event("change", { bubbles: true }));
-        };
-        $("#sc_go").onclick = async (e) => {
-          const b = e.target;
-          b.textContent = "Memproses...";
-          b.disabled = true;
-          await new Promise((r) => setTimeout(r, 40));
-          try {
-            const d = (a, c) => Math.hypot(a[0] - c[0], a[1] - c[1]);
-            let W = Math.max(d(pts[0], pts[1]), d(pts[3], pts[2])),
-              H = Math.max(d(pts[0], pts[3]), d(pts[1], pts[2])),
-              m = Math.min(1, 1600 / Math.max(W, H));
-            W = Math.round(W * m);
-            H = Math.round(H * m);
-            const od = warp(pts, W, H);
-            enh(od, $("#sc_md").value);
-            const oc = document.createElement("canvas");
-            oc.width = W;
-            oc.height = H;
-            oc.getContext("2d").putImageData(od, 0, 0);
-            res = await new Promise((r) => oc.toBlob(r, "image/jpeg", 0.92));
-            $("#sc_img").src = URL.createObjectURL(res);
-            $("#sc_out").hidden = false;
-            const tg = $("#sc_tg").value;
-            let msg = "Hasil scan siap.";
-            if ($("#sc_auto").checked) {
-              toSlot(tg, res);
-              msg = "\u2713 Foto 1 pada form " + TG[tg] + " sudah terisi otomatis.";
-            }
-            $("#sc_msg").textContent = msg;
-          } catch (err) {
-            alert("Scan gagal: " + err.message);
-          }
-          b.textContent = "Proses scan";
-          b.disabled = false;
-        };
-        const dl = () => {
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(res);
-          a.download = "scan-" + $("#sc_tg").value + "-" + Date.now() + ".jpg";
-          a.click();
-        };
-        $("#sc_dl").onclick = () => res && dl();
-        $("#sc_open").onclick = () => show($("#sc_tg").value);
-        $("#sc_wa").onclick = async () => {
-          if (!res) return;
-          const tg = $("#sc_tg").value,
-            text = $("#p-" + tg + " textarea").value,
-            file = new File([res], "scan-" + tg + ".jpg", { type: "image/jpeg" });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({ files: [file], text });
-            } catch (_) {}
-          } else {
-            dl();
-            try {
-              await navigator.clipboard.writeText(text);
-            } catch (_) {}
-            alert("Gambar diunduh dan keterangan disalin. Buka WhatsApp, lampirkan gambar, lalu tempel keterangan.");
-            window.open("https://wa.me/?text=" + encodeURIComponent(text));
-          }
-        };
-      })();
-      FORMS.forEach((f) => {
-        if (f.lay) $("#p-" + f.id + " .lay").value = f.lay;
-      });
-      /* ---- Penerimaan Barang: satu tab, isi mengikuti dropdown ---- */
-      (() => {
-        const SUB = ["incoming", "cek", "cuci"];
-        const KAT = [
-          ["sayur", "Sayur & Buah (Chilled)"],
-          ["dairyc", "Dairy (Chilled) – segera hadir"],
-          ["ikanc", "Ikan (Chilled) – segera hadir"],
-          ["daging", "Daging & Unggas (Frozen) – segera hadir"],
-          ["ikanf", "Ikan & Seafood (Frozen) – segera hadir"],
-          ["dairyf", "Dairy & Lainnya (Frozen) – segera hadir"],
-          ["dry", "Dry Food – segera hadir"],
-          ["nonfood", "Dry Non Food – segera hadir"],
-        ];
-        nav.querySelector("[data-t=scan]").insertAdjacentHTML("beforebegin", "<button data-t=terima>Penerimaan</button>");
-        SUB.forEach((id) => nav.querySelector("[data-t=" + id + "]").remove());
-        document.head.insertAdjacentHTML("beforeend", "<style>#p-terima section{border:0;padding:0;background:none}#p-terima section h2{display:none}</style>");
-        main.insertAdjacentHTML(
-          "beforeend",
-          `<section id='p-terima'><h2>Penerimaan Barang</h2>
-<div class='row'><div><label>Kategori</label><select id='t_kat'>${KAT.map(([v, l]) => `<option value='${v}'>${l}</option>`).join("")}</select></div>
-<div id='t_lapw'><label>Laporan</label><select id='t_lap'><option value='incoming'>Incoming</option><option value='cek'>Pengecekan Kualitas</option><option value='cuci'>Pencucian</option></select></div></div>
-<p id='t_soon' hidden style='color:var(--mut)'>Form untuk kategori ini segera hadir.</p><div id='t_box'></div></section>`,
-        );
-        SUB.forEach((id) => $("#t_box").append($("#p-" + id)));
-        const sel = () => {
-          const ok = $("#t_kat").value == "sayur",
-            r = $("#t_lap").value;
-          $("#t_soon").hidden = ok;
-          $("#t_lapw").hidden = !ok;
-          SUB.forEach((id) => $("#p-" + id).classList.toggle("on", ok && id == r));
-        };
-        $("#t_kat").onchange = sel;
-        $("#t_lap").onchange = sel;
-        sel();
-      })();
-      /* ---- Tabs ---- */
-      function show(id) {
-        $$("main>section").forEach((s) => s.classList.toggle("on", s.id == "p-" + id));
-        $$("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.t == id));
-      }
-      nav.onclick = (e) => {
-        if (e.target.dataset.t) show(e.target.dataset.t);
-      };
-      show("dsb");
-    </script>
-  </body>
+<div class="btns"><button class="btn wa" data-send="${f.id}">Kirim ke WhatsApp</button><button class="btn" data-dl="${f.id}">Unduh gambar</button></div></section>`);
+});
+const cap=p=>{const f=FORMS.find(x=>x.id==p.dataset.id),v={};$$(`#${p.id} [data-k]`).forEach(e=>v[e.dataset.k]=e.value.trim()||(e.dataset.k=='site'?'BCP':''));p.querySelector('textarea').value=f.cap(v)};
+async function build(p){
+  const fs=$$(`#${p.id} input[type=file]`).flatMap(i=>[...i.files]);
+  if(!fs.length)return null;
+  const im=await Promise.all(fs.map(f=>createImageBitmap(f))),h=p.querySelector('.lay').value=='h',G=8;
+  let W,Ht,pos=[];
+  if(p.querySelector('.lay').value=='g'){const cw=540,n=im.length;W=cw*2+G;Ht=Math.ceil(n/2)*(cw+G)-G;im.forEach((_,i)=>pos.push([i%2*(cw+G),(i>>1)*(cw+G),i==n-1&&i%2==0?W:cw,cw]))}else if(!h){W=1080;const hs=im.map(i=>Math.round(i.height*W/i.width));let y=0;hs.forEach(x=>{pos.push([0,y,W,x]);y+=x+G});Ht=y-G}
+  else{Ht=1080;const ws=im.map(i=>Math.round(i.width*Ht/i.height));let x=0;ws.forEach(w=>{pos.push([x,0,w,Ht]);x+=w+G});W=x-G}
+  const c=document.createElement('canvas');c.width=W;c.height=Ht;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,Ht);
+  im.forEach((i,k)=>{const[dx,dy,dw,dh]=pos[k],s=Math.max(dw/i.width,dh/i.height),sw=dw/s,sh=dh/s;x.drawImage(i,(i.width-sw)/2,(i.height-sh)/2,sw,sh,dx,dy,dw,dh)});
+  return new Promise(r=>c.toBlob(r,'image/jpeg',.9));
+}
+async function preview(p){const b=await build(p),im=p.querySelector('.pv');if(b){im.src=URL.createObjectURL(b);im.hidden=false}else im.hidden=true}
+FORMS.forEach(f=>{const p=$('#p-'+f.id);cap(p);
+  p.addEventListener('input',e=>{if(e.target.dataset.k)cap(p)});
+  p.addEventListener('change',e=>{if(e.target.type=='file'||e.target.classList.contains('lay'))preview(p)});
+});
+document.addEventListener('click',async e=>{
+  const t=e.target;
+  if(t.dataset.s){const sl=$(`#p-${t.dataset.s} .slots`);sl.insertAdjacentHTML('beforeend',slot(sl.querySelectorAll('input').length+1))}
+  if(t.dataset.send||t.dataset.dl){
+    const p=$('#p-'+(t.dataset.send||t.dataset.dl)),b=await build(p),text=p.querySelector('textarea').value;
+    if(!b)return alert('Pilih foto dulu');
+    const file=new File([b],p.dataset.id+'-'+Date.now()+'.jpg',{type:'image/jpeg'});
+    const save=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=file.name;a.click()};
+    if(t.dataset.dl)return save();
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text})}catch(_){}}
+    else{save();try{await navigator.clipboard.writeText(text)}catch(_){}alert('Gambar diunduh dan keterangan disalin. Buka WhatsApp, lampirkan gambar, lalu tempel keterangan.');window.open('https://wa.me/?text='+encodeURIComponent(text))}
+  }
+});
+/* ---- Packmeal: jam realtime, tetap bisa diubah manual ---- */
+(()=>{
+  const p=$('#p-pack'),ti=p.querySelector('[data-k=time]'),ta=p.querySelector('textarea');
+  let live=true;
+  const st=document.createElement('button');st.type='button';st.className='add';st.style.marginTop='8px';
+  ti.parentElement.appendChild(st);
+  const lab=()=>{st.textContent=live?'● Realtime (ikut jam perangkat)':'↻ Kembali ke jam realtime'};
+  const tick=()=>{if(!live)return;const n=nowHM();if(ti.value!==n){ti.value=n;cap(p)}};
+  ti.addEventListener('input',()=>{live=false;lab()});
+  ta.addEventListener('input',()=>{live=false;lab()});
+  st.onclick=()=>{live=true;lab();tick()};
+  document.addEventListener('visibilitychange',tick);
+  setInterval(tick,1000);lab();tick();
+})();
+/* ---- Scan dokumen ---- */
+(()=>{
+  nav.insertAdjacentHTML('beforeend','<button data-t="scan">Scan</button>');
+  const cv=$('#sc_cv'),cx=cv.getContext('2d'),S=document.createElement('canvas');
+  let pts=[],ds=1,drag=-1,res=null;
+  const TG={hadir:'Daftar Hadir',hyg:'Inspection Personal Hygiene'};
+  const draw=()=>{ds=Math.min(1,720/S.width);cv.width=S.width*ds;cv.height=S.height*ds;cx.drawImage(S,0,0,cv.width,cv.height);
+    cx.beginPath();pts.forEach(([x,y],i)=>cx[i?'lineTo':'moveTo'](x*ds,y*ds));cx.closePath();cx.fillStyle='rgba(245,124,0,.22)';cx.fill();cx.lineWidth=3;cx.strokeStyle='#f57c00';cx.stroke();
+    pts.forEach(([x,y])=>{cx.beginPath();cx.arc(x*ds,y*ds,14,0,7);cx.fillStyle='#f57c00';cx.fill();cx.strokeStyle='#fff';cx.stroke()})};
+  const init=()=>{const w=S.width,h=S.height,i=.06;pts=[[w*i,h*i],[w*(1-i),h*i],[w*(1-i),h*(1-i)],[w*i,h*(1-i)]];res=null;$('#sc_out').hidden=true;$('#sc_ed').hidden=false;draw()};
+  const load=async f=>{if(!f)return;const b=await createImageBitmap(f),m=Math.min(1,2400/Math.max(b.width,b.height));S.width=Math.round(b.width*m);S.height=Math.round(b.height*m);S.getContext('2d').drawImage(b,0,0,S.width,S.height);init()};
+  $('#sc_cam').onchange=e=>load(e.target.files[0]);$('#sc_gal').onchange=e=>load(e.target.files[0]);
+  const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width/ds,(e.clientY-r.top)*cv.height/r.height/ds]};
+  cv.onpointerdown=e=>{const[x,y]=pos(e);let best=-1,bd=1e9;pts.forEach((p,i)=>{const d=Math.hypot(p[0]-x,p[1]-y)*ds;if(d<bd){bd=d;best=i}});if(bd<44*cv.width/cv.getBoundingClientRect().width){drag=best;cv.setPointerCapture(e.pointerId)}};
+  cv.onpointermove=e=>{if(drag<0)return;const[x,y]=pos(e);pts[drag]=[Math.max(0,Math.min(S.width,x)),Math.max(0,Math.min(S.height,y))];draw()};
+  cv.onpointerup=cv.onpointercancel=()=>{drag=-1};
+  $('#sc_rot').onclick=()=>{const t=document.createElement('canvas');t.width=S.height;t.height=S.width;const c=t.getContext('2d');c.translate(t.width,0);c.rotate(Math.PI/2);c.drawImage(S,0,0);S.width=t.width;S.height=t.height;S.getContext('2d').drawImage(t,0,0);init()};
+  function homo(d,s){const A=[],B=[];for(let i=0;i<4;i++){const[x,y]=d[i],[u,v]=s[i];A.push([x,y,1,0,0,0,-u*x,-u*y]);B.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);B.push(v)}
+    for(let i=0;i<8;i++){let m=i;for(let r=i+1;r<8;r++)if(Math.abs(A[r][i])>Math.abs(A[m][i]))m=r;[A[i],A[m]]=[A[m],A[i]];[B[i],B[m]]=[B[m],B[i]];for(let r=i+1;r<8;r++){const f=A[r][i]/A[i][i];for(let c=i;c<8;c++)A[r][c]-=f*A[i][c];B[r]-=f*B[i]}}
+    const X=Array(8);for(let i=7;i>=0;i--){let s=B[i];for(let c=i+1;c<8;c++)s-=A[i][c]*X[c];X[i]=s/A[i][i]}return X}
+  function warp(q,W,H){const sw=S.width,sh=S.height,sd=S.getContext('2d').getImageData(0,0,sw,sh).data,k=homo([[0,0],[W,0],[W,H],[0,H]],q),od=new ImageData(W,H),o=od.data;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){const w=k[6]*x+k[7]*y+1,u=(k[0]*x+k[1]*y+k[2])/w,v=(k[3]*x+k[4]*y+k[5])/w,i=(y*W+x)*4;o[i+3]=255;
+      if(u<0||v<0||u>=sw-1||v>=sh-1){o[i]=o[i+1]=o[i+2]=255;continue}
+      const x0=u|0,y0=v|0,fx=u-x0,fy=v-y0,p=(y0*sw+x0)*4,p2=p+sw*4;
+      for(let c=0;c<3;c++)o[i+c]=(sd[p+c]*(1-fx)+sd[p+4+c]*fx)*(1-fy)+(sd[p2+c]*(1-fx)+sd[p2+4+c]*fx)*fy}
+    return od}
+  function enh(od,mode){if(mode=='asli')return;const D=od.data,W=od.width,H=od.height,g=new Uint8Array(W*H);
+    for(let i=0;i<W*H;i++)g[i]=.299*D[i*4]+.587*D[i*4+1]+.114*D[i*4+2];
+    const I=new Uint32Array((W+1)*(H+1));for(let y=0;y<H;y++){let r=0;for(let x=0;x<W;x++){r+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+r}}
+    const k=Math.max(8,W>>4);
+    for(let y=0;y<H;y++){const y0=Math.max(0,y-k),y1=Math.min(H,y+k+1);for(let x=0;x<W;x++){const x0=Math.max(0,x-k),x1=Math.min(W,x+k+1),m=(I[y1*(W+1)+x1]-I[y0*(W+1)+x1]-I[y1*(W+1)+x0]+I[y0*(W+1)+x0])/((x1-x0)*(y1-y0)),v=g[y*W+x];
+      const o=mode=='bw'?(v<m*.88?0:255):255*Math.pow(Math.min(1,v/(m+1)*1.03),1.8),i=(y*W+x)*4;D[i]=D[i+1]=D[i+2]=o}}}
+  const toSlot=(id,blob)=>{const inp=$('#p-'+id+' input[type=file]'),dt=new DataTransfer();dt.items.add(new File([blob],'scan-'+Date.now()+'.jpg',{type:'image/jpeg'}));if(id=='hyg')[...inp.files].filter(f=>!f.name.startsWith('scan-')).forEach(f=>dt.items.add(f));inp.files=dt.files;inp.dispatchEvent(new Event('change',{bubbles:true}))};
+  $('#sc_go').onclick=async e=>{
+    const b=e.target;b.textContent='Memproses...';b.disabled=true;await new Promise(r=>setTimeout(r,40));
+    try{const d=(a,c)=>Math.hypot(a[0]-c[0],a[1]-c[1]);let W=Math.max(d(pts[0],pts[1]),d(pts[3],pts[2])),H=Math.max(d(pts[0],pts[3]),d(pts[1],pts[2])),m=Math.min(1,1600/Math.max(W,H));W=Math.round(W*m);H=Math.round(H*m);
+      const od=warp(pts,W,H);enh(od,$('#sc_md').value);
+      const oc=document.createElement('canvas');oc.width=W;oc.height=H;oc.getContext('2d').putImageData(od,0,0);
+      res=await new Promise(r=>oc.toBlob(r,'image/jpeg',.92));$('#sc_img').src=URL.createObjectURL(res);$('#sc_out').hidden=false;
+      const tg=$('#sc_tg').value;let msg='Hasil scan siap.';if($('#sc_auto').checked){toSlot(tg,res);msg='\u2713 Foto 1 pada form '+TG[tg]+' sudah terisi otomatis.'}
+      $('#sc_msg').textContent=msg;
+    }catch(err){alert('Scan gagal: '+err.message)}
+    b.textContent='Proses scan';b.disabled=false;
+  };
+  const dl=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(res);a.download='scan-'+$('#sc_tg').value+'-'+Date.now()+'.jpg';a.click()};
+  $('#sc_dl').onclick=()=>res&&dl();
+  $('#sc_open').onclick=()=>show($('#sc_tg').value);
+  $('#sc_wa').onclick=async()=>{if(!res)return;const tg=$('#sc_tg').value,text=$('#p-'+tg+' textarea').value,file=new File([res],'scan-'+tg+'.jpg',{type:'image/jpeg'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text})}catch(_){}}
+    else{dl();try{await navigator.clipboard.writeText(text)}catch(_){}alert('Gambar diunduh dan keterangan disalin. Buka WhatsApp, lampirkan gambar, lalu tempel keterangan.');window.open('https://wa.me/?text='+encodeURIComponent(text))}};
+})();
+FORMS.forEach(f=>{if(f.lay)$('#p-'+f.id+' .lay').value=f.lay});
+/* ---- Penerimaan Barang: satu tab, isi mengikuti dropdown ---- */
+(()=>{
+  const SUB=['incoming','cek','cuci','ikin','ikek'];
+  const REP={sayur:[['incoming','Penerimaan'],['cek','Pengecekan Kualitas'],['cuci','Pencucian']],ikanf:[['ikin','Penerimaan'],['ikek','Pengecekan Suhu, Exp & Kualitas']]};
+  const KAT=[['sayur','Sayur & Buah (Chilled)'],['dairyc','Dairy (Chilled) – segera hadir'],['ikanc','Ikan (Chilled) – segera hadir'],['daging','Daging & Unggas (Frozen) – segera hadir'],['ikanf','Ikan (Frozen)'],['dairyf','Dairy & Lainnya (Frozen) – segera hadir'],['dry','Dry Food – segera hadir'],['nonfood','Dry Non Food – segera hadir']];
+  nav.querySelector('[data-t=scan]').insertAdjacentHTML('beforebegin','<button data-t=terima>Penerimaan</button>');
+  SUB.forEach(id=>nav.querySelector('[data-t='+id+']').remove());
+  document.head.insertAdjacentHTML('beforeend','<style>#p-terima section{border:0;padding:0;background:none}#p-terima section h2{display:none}</style>');
+  main.insertAdjacentHTML('beforeend',`<section id='p-terima'><h2>Penerimaan Barang</h2>
+<div class='row'><div><label>Kategori</label><select id='t_kat'>${KAT.map(([v,l])=>`<option value='${v}'>${l}</option>`).join('')}</select></div>
+<div id='t_lapw'><label>Laporan</label><select id='t_lap'></select></div></div>
+<p id='t_soon' hidden style='color:var(--mut)'>Form untuk kategori ini segera hadir.</p><div id='t_box'></div></section>`);
+  SUB.forEach(id=>$('#t_box').append($('#p-'+id)));
+  const fill=()=>{const L=REP[$('#t_kat').value]||[];$('#t_lap').innerHTML=L.map(([v,l])=>`<option value='${v}'>${l}</option>`).join('')};
+  const sel=()=>{const ok=!!REP[$('#t_kat').value],r=$('#t_lap').value;
+    $('#t_soon').hidden=ok;$('#t_lapw').hidden=!ok;
+    SUB.forEach(id=>$('#p-'+id).classList.toggle('on',ok&&id==r))};
+  $('#t_kat').onchange=()=>{fill();sel()};$('#t_lap').onchange=sel;fill();sel();
+})();
+/* ---- Harian: satu tab, isi mengikuti dropdown ---- */
+(()=>{
+  const SUB=['dsb','hadir','dok','hyg'];
+  nav.insertAdjacentHTML('afterbegin','<button data-t=harian>Harian</button>');
+  SUB.forEach(id=>nav.querySelector('[data-t='+id+']').remove());
+  document.head.insertAdjacentHTML('beforeend','<style>#p-harian section{border:0;padding:0;background:none}#p-harian section h2{display:none}</style>');
+  main.insertAdjacentHTML('beforeend',`<section id='p-harian'><label style='margin-top:0'>Laporan</label><select id='h_lap'><option value='dsb'>Daily Safety Briefing (teks)</option><option value='hadir'>Daftar Hadir Safety Briefing</option><option value='dok'>Dokumentasi Safety Briefing</option><option value='hyg'>Inspeksi Personal Hygiene Sanitasi</option></select><div id='h_box'></div></section>`);
+  SUB.forEach(id=>$('#h_box').append($('#p-'+id)));
+  const sel=()=>SUB.forEach(id=>$('#p-'+id).classList.toggle('on',id==$('#h_lap').value));
+  $('#h_lap').onchange=sel;sel();
+})();
+/* ---- Shift otomatis (Pagi 05.00-16.59, Malam di luar itu), bisa diedit manual ---- */
+(()=>{
+  const now=()=>{const h=new Date().getHours();return h>=5&&h<17?'Pagi':'Malam'};
+  ['hadir','dok'].forEach(id=>{const p=$('#p-'+id),s=p.querySelector('[data-k=shift]');let manual=false;
+    s.addEventListener('change',()=>{manual=true});
+    const tick=()=>{if(manual)return;const v=now();if(s.value!==v){s.value=v;cap(p)}};
+    tick();setInterval(tick,30000);document.addEventListener('visibilitychange',tick)});
+})();
+/* ---- Tabs ---- */
+function show(id){const sb=$('#p-'+id),pr=sb&&sb.parentElement.id;
+  if(pr=='h_box'){$('#h_lap').value=id;$('#h_lap').onchange();id='harian'}
+  else if(pr=='t_box'){$('#t_kat').value='sayur';$('#t_lap').value=id;$('#t_kat').onchange();id='terima'}
+  $$('main>section').forEach(s=>s.classList.toggle('on',s.id=='p-'+id));$$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==id))}
+nav.onclick=e=>{if(e.target.dataset.t)show(e.target.dataset.t)};
+show('harian');
+</script>
+</body>
 </html>
